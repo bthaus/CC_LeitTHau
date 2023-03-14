@@ -1,3 +1,6 @@
+import com.google.api.services.translate.Translate;
+import com.google.cloud.translate.Language;
+
 import java.io.*;
 import java.net.Socket;
 import java.net.URI;
@@ -28,14 +31,20 @@ public class main {
         try {
 
 
-            HttpRequest.Builder builder= HttpRequest.newBuilder(URI.create("https://www.google.at/"));
+            HttpRequest.Builder builder= HttpRequest.newBuilder(URI.create("https://www.gmx.at/"));
             HttpRequest req=builder.GET().build();
             HttpClient client=HttpClient.newHttpClient();
             HttpResponse<String>res= client.send(req, HttpResponse.BodyHandlers.ofString());
-            System.out.println(res);
-            System.out.println("headers: "+res.headers().toString());
+            //System.out.println(res);
+            //System.out.println("headers: "+res.headers().toString());
+            String hrefs[]=res.body().split("href=\"");
+            for (String a:hrefs
+                 ) {
 
-            System.out.println("body:"+res.body());
+                System.out.println(a.substring(0,a.indexOf("\"")));
+            }
+
+            //System.out.println("body:"+res.body());
 
 
         } catch (IOException | InterruptedException e) {
