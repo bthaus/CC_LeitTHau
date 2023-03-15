@@ -9,9 +9,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
@@ -24,22 +29,57 @@ public class main {
     static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
-    static ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> toremove = new ConcurrentLinkedDeque<>();
+    static WebsiteData root;
+
     static Scanner in = new Scanner(System.in);
-    static final int CRAWL_DEPTH = 3;
+   public static final int CRAWL_DEPTH = 3;
     static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
+    static final int MAX_TRIES=3;
 
     public static void helloWorld(String msg) {
 
     }
 
     public static void main(String[] args) {
+        root=new WebsiteData(null,args[0],-1,false);
+        crawl(args[0], CRAWL_DEPTH,root,1);
+        waitForAllRequests();
+        createMarkdownFile();
 
-        for (String a : args
-        ) {
-            System.out.println(a);
+
+
+
+
+    }
+    public static void createMarkdownFile(){
+
+        System.out.println(WebsiteData.successes+" successes");
+        System.out.println(WebsiteData.failures+" failures");
+        Path path
+                = Paths.get("C:\\Users\\bwues\\Desktop\\U_SS_23\\Clean_Code\\Project\\src\\main\\markdown.md");
+
+        // Custom string as an input
+
+        // Try block to check for exceptions
+        try {
+            // Now calling Files.writeString() method
+            // with path , content & standard charsets
+            Files.writeString(path, root.children.pop().getMarkdownString(),
+                    StandardCharsets.UTF_8);
         }
-        crawl("https://www.gmx.at/", CRAWL_DEPTH);
+
+        // Catch block to handle the exception
+        catch (IOException ex) {
+            // Print messqage exception occurred as
+            // invalid. directory local path is passed
+            System.out.print("Invalid Path");
+        }
+
+    }
+
+
+
+    public static void waitForAllRequests(){
         int keepAlive = 0;
         int temp = 0;
         while (futures.size() > 0) {
@@ -48,7 +88,7 @@ public class main {
                 if (temp == futures.size()) {
                     keepAlive++;
                 } else {
-                    temp = 0;
+                    keepAlive = 0;
                 }
                 temp = futures.size();
                 if (keepAlive > CLIENT_TIMEOUT_IN_SECONDS) {
@@ -61,29 +101,22 @@ public class main {
             }
         }
 
-
         killAllFutures();
-
-        errorUrls.removeAll(urlList);
-        for (WebsiteData data : websiteData
-        ) {
-            data.print();
-        }
-        System.out.println(websiteData.size() + " websites crawled");
-        System.out.println(websiteData.size() - errorUrls.size() + " successfully visited sites");
-
-
     }
 
-    public static void crawl(String url, int depth) {
+    public static void crawl(String url, int depth,WebsiteData parent,int tries) {
 
         if (depth == 0) {
             return;
         }
-
-        if (urlList.contains(url)) {
+        if(tries>MAX_TRIES){
+            parent.children.offer(new WebsiteData(null, url, depth, false));
+            errorUrls.offer(url);
             return;
         }
+
+        if (urlList.contains(url)&&tries==1) {
+            return;}
         urlList.offer(url);
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         HttpRequest req = builder.GET().build();
@@ -92,21 +125,23 @@ public class main {
         futures.offer(response);
         response.thenAcceptAsync((res) -> {
 
-            websiteData.add(new WebsiteData(res.headers(), url, depth, true));
+            WebsiteData fetched=new WebsiteData(res.headers(), url, depth, true);
+            parent.children.offer(fetched);
             removeFuture(response);
             String hrefs[] = res.body().split("href=\"");
-
+            urlList.offer(url);
             for (String a : hrefs
             ) {
 
-                String link = null;
+                String link;
                 try {
                     link = a.substring(0, a.indexOf("\""));
                 } catch (Exception e) {
                     link = a;
                 }
                 if (link.contains("https://") || link.contains("http://")) {
-                    crawl(link, depth - 1);
+                    crawl(link, depth - 1,fetched,tries);
+
 
 
                 }
@@ -114,11 +149,11 @@ public class main {
             }
 
         }).exceptionally((exc) -> {
-            // System.out.println("error happened with message "+exc.getMessage());
-            removeFuture(response);
-            if (!exc.getMessage().contains("CancellationException"))
-                websiteData.offer(new WebsiteData(null, url, depth, false, exc.getMessage()));
-            errorUrls.offer(url);
+
+              removeFuture(response);
+              crawl(url,depth,parent,tries+1);
+
+
             return null;
         });
 
