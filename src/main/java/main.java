@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class main {
-    static ConcurrentLinkedDeque<WebsiteData> websiteData = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
@@ -35,6 +34,7 @@ public class main {
    public static final int CRAWL_DEPTH = 3;
     static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
     static final int MAX_TRIES=3;
+    static final boolean SLOW_MODE=true;
 
     public static void helloWorld(String msg) {
 
@@ -44,6 +44,7 @@ public class main {
         root=new WebsiteData(null,args[0],-1,false);
         crawl(args[0], CRAWL_DEPTH,root,1);
         waitForAllRequests();
+        translateEverything(args[1]);
         createMarkdownFile();
 
 
@@ -51,6 +52,11 @@ public class main {
 
 
     }
+
+    private static void translateEverything(String german) {
+
+    }
+
     public static void createMarkdownFile(){
 
         System.out.println(WebsiteData.successes+" successes");
@@ -115,8 +121,9 @@ public class main {
             return;
         }
 
-        if (urlList.contains(url)&&tries==1) {
+        if ((urlList.contains(url)||errorUrls.contains(url))&&tries==1) {
             return;}
+
         urlList.offer(url);
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         HttpRequest req = builder.GET().build();
@@ -157,6 +164,7 @@ public class main {
             return null;
         });
 
+        if(depth==1&&SLOW_MODE)response.join();
 
     }
 
