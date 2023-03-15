@@ -1,4 +1,12 @@
+import java.net.Authenticator;
+import java.net.PasswordAuthentication;
+import java.net.URI;
+import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WebsiteData {
@@ -14,7 +22,7 @@ public class WebsiteData {
 
     public WebsiteData(HttpHeaders header,String address, int depth,boolean success) {
         this.address=address;
-        this.header = header;
+        this.header = header.toString();
         this.depth = depth;
         this.successfull=success;
         if(success)successes++;
@@ -22,7 +30,7 @@ public class WebsiteData {
     }
     public WebsiteData(HttpHeaders header,String address, int depth,boolean success,String errorMessage) {
         this.address=address;
-        this.header = header;
+        this.header = header.toString();
         this.depth = depth;
         this.successfull=success;
         this.errorMessage=errorMessage;
@@ -56,9 +64,37 @@ public class WebsiteData {
         return word;
     }
 
+    public void translateAll(String language){
+        this.translate(language);
+        for (WebsiteData child:children
+             ) {
+            child.translateAll(language);
+        }
+    }
+
+    /* formatted according to example response on deepl.com/docs-api:
+      {
+          "translations": [
+          {
+              "detected_source_language": "EN",
+                  "text": "Hallo, Welt!"
+          }
+]
+      }*/
+    public void translate(String language){
+
+        HttpRequest req = HttpRequest.newBuilder(URI.create(main.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(header +"&target_lang="+language)).header("Authorization",main.TRANSLATION_API_KEY).build();
+        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(main.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
+        main.futures.offer(response);
+        response.thenAcceptAsync((res)-> {
+            main.futures.remove(response);
+            this.header=res.body().substring(res.body().indexOf("text\": \""),res.body().indexOf("\"\n}\n]\n}"));
+        });
+
+    }
     String address;
     String errorMessage;
-    HttpHeaders header;
+    String header;
     int depth;
     boolean successfull;
     ConcurrentLinkedDeque<WebsiteData> children=new ConcurrentLinkedDeque<>();

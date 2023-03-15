@@ -25,13 +25,16 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class main {
+    public static final String TRANSLATION_URI = "guineapig";
+    public static final String TRANSLATION_API_KEY = "i dont have a credit card";
+    public static final boolean doIHaveATranslationApiKey=false;
     static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
     static WebsiteData root;
 
     static Scanner in = new Scanner(System.in);
-   public static final int CRAWL_DEPTH = 3;
+    public static final int CRAWL_DEPTH = 3;
     static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
     static final int MAX_TRIES=3;
     static final boolean SLOW_MODE=true;
@@ -45,7 +48,9 @@ public class main {
         crawl(args[0], CRAWL_DEPTH,root,1);
         waitForAllRequests();
         translateEverything(args[1]);
+        waitForAllRequests();
         createMarkdownFile();
+
 
 
 
@@ -53,8 +58,8 @@ public class main {
 
     }
 
-    private static void translateEverything(String german) {
-
+    private static void translateEverything(String language) {
+        if(doIHaveATranslationApiKey)root.translateAll(language);
     }
 
     public static void createMarkdownFile(){
