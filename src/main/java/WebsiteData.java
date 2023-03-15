@@ -22,7 +22,12 @@ public class WebsiteData {
 
     public WebsiteData(HttpHeaders header,String address, int depth,boolean success) {
         this.address=address;
-        this.header = header.toString();
+        if(header==null){
+            this.header="no header";
+        }else{
+            this.header = header.toString();
+
+        }
         this.depth = depth;
         this.successfull=success;
         if(success)successes++;

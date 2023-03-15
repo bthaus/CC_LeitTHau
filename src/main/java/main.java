@@ -182,7 +182,7 @@ public class main {
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-        if(depth>=1&&SLOW_MODE)response.join();
+        if(depth>=2&&SLOW_MODE)response.join();
 
     }
 
