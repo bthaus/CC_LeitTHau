@@ -15,8 +15,8 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 
 public class main {
-    public static final String TRANSLATION_URI = "guineapig";
-    public static final String TRANSLATION_API_KEY = "i dont have a credit card";
+    public static final String TRANSLATION_URI = "https://api-free.deepl.com/v2/translate";
+    public static final String TRANSLATION_API_KEY = "i dont have a credit card, and even to get a free account for an api key i need to enter credit card details";
     public static final boolean doIHaveATranslationApiKey=false;
 
     static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
