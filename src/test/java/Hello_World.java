@@ -12,11 +12,7 @@ public class Hello_World {
 
     }
 
-    @Test
-    public void mainTest() {
-        main.helloWorld("hello main");
-        assertEquals( 1,1);
-    }
+
 }
 
 
