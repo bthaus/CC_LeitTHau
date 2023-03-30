@@ -1,3 +1,5 @@
+import com.google.api.client.json.Json;
+
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URI;
@@ -10,8 +12,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WebsiteData {
+
     static int successes=0;
     static int failures=0;
+
     public int getDepth() {
         return depth;
     }
@@ -22,7 +26,12 @@ public class WebsiteData {
 
     public WebsiteData(HttpHeaders header,String address, int depth,boolean success) {
         this.address=address;
-        this.header = header.toString();
+        if(header==null){
+            this.header="no header";
+        }else{
+            this.header = header.toString();
+
+        }
         this.depth = depth;
         this.successfull=success;
         if(success)successes++;
@@ -35,9 +44,14 @@ public class WebsiteData {
         this.successfull=success;
         this.errorMessage=errorMessage;
     }
+    //auxiliary constructor for mockdata
+    public WebsiteData(String header){
+        this.header=header;
+    }
     public void print(){
         System.out.println("adress: "+address+" depth: "+depth+" headers: "+header+" error message: "+errorMessage);
     }
+
     public String getMarkdownString(){
         String retval="";
         retval=addNStrings(retval,"#", main.CRAWL_DEPTH-depth-1).concat(" ");
@@ -81,15 +95,24 @@ public class WebsiteData {
           }
 ]
       }*/
+
+
     public void translate(String language){
 
-        HttpRequest req = HttpRequest.newBuilder(URI.create(main.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(header +"&target_lang="+language)).header("Authorization",main.TRANSLATION_API_KEY).build();
+        JsonHelper.TranslationRequestBody body=JsonHelper.getTranslationRequestBody(header,"en",language);
+        String bodyString=JsonHelper.getJsonString(body);
+
+
+
+        HttpRequest req = HttpRequest.newBuilder(URI.create(main.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key",main.TRANSLATION_API_KEY,"X-RapidAPI-Host",main.TRANSLATION_API_HOST).build();
         CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(main.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
         main.futures.offer(response);
         response.thenAcceptAsync((res)-> {
             main.futures.remove(response);
-            this.header=res.body().substring(res.body().indexOf("text\": \""),res.body().indexOf("\"\n}\n]\n}"));
-        });
+            System.out.println(res.body());
+           String[] translation=res.body().split("translatedText\": \"");
+            this.header=translation[1].substring(0,translation[1].lastIndexOf("\""));
+        }).join();
 
     }
     String address;

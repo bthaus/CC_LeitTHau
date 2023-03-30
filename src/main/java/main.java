@@ -15,9 +15,11 @@ import java.util.Scanner;
 import java.util.concurrent.*;
 
 public class main {
-    public static final String TRANSLATION_URI = "https://api-free.deepl.com/v2/translate";
-    public static final String TRANSLATION_API_KEY = "i dont have a credit card, and even to get a free account for an api key i need to enter credit card details";
-    public static final boolean doIHaveATranslationApiKey=false;
+
+    public static final String TRANSLATION_URI = "https://google-translator9.p.rapidapi.com/v2";
+    public static final String TRANSLATION_API_KEY = "8be2472a36msh8f684a5c19a2e7fp1efedbjsn205de06bd3c9";
+    public static final String TRANSLATION_API_HOST = "google-translator9.p.rapidapi.com";
+    public static final boolean doIHaveATranslationApiKey=true;
 
     static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
@@ -32,9 +34,13 @@ public class main {
 
 
     public static void main(String[] args) {
+
+
+
         root=new WebsiteData(null,args[0],-1,false);
         crawl(args[0], CRAWL_DEPTH,root,1);
         waitForAllRequests();
+
         translateEverything(args[1]);
         waitForAllRequests();
         createMarkdownFile();
@@ -49,23 +55,15 @@ public class main {
 
         System.out.println(WebsiteData.successes+" successes");
         System.out.println(WebsiteData.failures+" failures");
-        Path path
-                = Paths.get("C:\\Users\\bwues\\Desktop\\U_SS_23\\Clean_Code\\Project\\src\\main\\markdown.md");
 
-        // Custom string as an input
+        Path path = Paths.get("C:\\Users\\bwues\\Desktop\\U_SS_23\\Clean_Code\\Project\\src\\main\\markdown.md");
 
-        // Try block to check for exceptions
         try {
-            // Now calling Files.writeString() method
-            // with path , content & standard charsets
-            Files.writeString(path, root.children.pop().getMarkdownString(),
-                    StandardCharsets.UTF_8);
+
+            Files.writeString(path, root.children.pop().getMarkdownString(), StandardCharsets.UTF_8);
         }
 
-        // Catch block to handle the exception
         catch (IOException ex) {
-            // Print messqage exception occurred as
-            // invalid. directory local path is passed
             System.out.print("Invalid Path");
         }
 
@@ -90,7 +88,7 @@ public class main {
                 }
 
                 temp = futures.size();
-
+//wir haben alle probleme gelöst. aber da sind ja noch welche?? TÖTET SIE ALLE
                 //if for timeout seconds no request is added or removed all requests are cancelled
                 if (keepAlive > CLIENT_TIMEOUT_IN_SECONDS) {
                     System.out.println("remaining requests cancelled due to timeout");
@@ -182,7 +180,7 @@ public class main {
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-        if(depth>=1&&SLOW_MODE)response.join();
+        if(depth<=2&&SLOW_MODE)response.join();
 
     }
 
