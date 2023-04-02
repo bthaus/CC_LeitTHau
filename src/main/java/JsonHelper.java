@@ -19,40 +19,40 @@ public class JsonHelper{
     }
 
     static class TranslationRequestBody {
-        private String header;
-        private String sourceLanguage;
-        private String targetLanguage;
+        private String q;
+        private String source;
+        private String target;
         private final String format="text";
 
-        public TranslationRequestBody(String header, String sourceLanguage, String targetLanguage) {
-            this.header = header;
-            this.sourceLanguage = sourceLanguage;
-            this.targetLanguage = targetLanguage;
+        public TranslationRequestBody(String q, String sourceLanguage, String target) {
+            this.q = q;
+            this.source = sourceLanguage;
+            this.target = target;
         }
 
 
-        public String getHeader() {
-            return header;
+        public String getQ() {
+            return q;
         }
 
-        public void setHeader(String header) {
-            this.header = header;
+        public void setQ(String q) {
+            this.q = q;
         }
 
-        public String getSourceLanguage() {
-            return sourceLanguage;
+        public String getSource() {
+            return source;
         }
 
-        public void setSourceLanguage(String sourceLanguage) {
-            this.sourceLanguage = sourceLanguage;
+        public void setSource(String source) {
+            this.source = source;
         }
 
-        public String getTargetLanguage() {
-            return targetLanguage;
+        public String getTarget() {
+            return target;
         }
 
-        public void setTargetLanguage(String targetLanguage) {
-            this.targetLanguage = targetLanguage;
+        public void setTarget(String target) {
+            this.target = target;
         }
 
         public String getFormat() {
