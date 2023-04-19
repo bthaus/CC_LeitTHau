@@ -23,7 +23,7 @@ public class tests {
     public void testTranslation() {
         WebsiteData data=new WebsiteData("test header with testvalue");
         data.translate("de");
-        assertEquals("Testheader mit Testwert",data.header);
+        assertEquals("Testheader mit Testwert",data.getHeader());
     }
 
 

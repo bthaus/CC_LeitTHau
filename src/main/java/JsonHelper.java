@@ -8,10 +8,10 @@ public class JsonHelper{
     }
 
     public static String getJsonString(Object o){
-        ObjectMapper mapper=new ObjectMapper();
-        String jsonStr="";
+        ObjectMapper mapper = new ObjectMapper();
+        String jsonStr = "";
         try {
-            jsonStr=mapper.writeValueAsString(o);
+            jsonStr = mapper.writeValueAsString(o);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -22,14 +22,13 @@ public class JsonHelper{
         private String q;
         private String source;
         private String target;
-        private final String format="text";
+        private final String format = "text";
 
         public TranslationRequestBody(String q, String sourceLanguage, String target) {
             this.q = q;
             this.source = sourceLanguage;
             this.target = target;
         }
-
 
         public String getQ() {
             return q;
