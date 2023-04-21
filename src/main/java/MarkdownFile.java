@@ -25,7 +25,6 @@ public class MarkdownFile {
     public StringBuilder getMarkdownString(){
         StringBuilder markdownString = new StringBuilder();
         for (WebsiteData child:children){
-            System.out.println(child);
             markdownString.append(getFormat(child));
 
             //TODO debug feature delete

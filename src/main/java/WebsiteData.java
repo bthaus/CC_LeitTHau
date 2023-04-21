@@ -44,38 +44,6 @@ public class WebsiteData {
     }
 
 
-    public void translateChildren(String language){
-        this.translate(language);
-        for (WebsiteData child:Data.getChildren()) {
-            child.translateChildren(language);
-        }
-    }
-
-    /** formatted according to example response on deepl.com/docs-api:
-      {
-          "translations": [
-          {
-              "detected_source_language": "EN",
-                  "text": "Hallo, Welt!"
-          }
-        ]
-      }*/
-
-    public void translate(String language){
-        JsonHelper.TranslationRequestBody body=JsonHelper.getTranslationRequestBody(header,"en", language);
-        String bodyString=JsonHelper.getJsonString(body);
-
-        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Data.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key", Data.TRANSLATION_API_KEY,"X-RapidAPI-Host", Data.TRANSLATION_API_HOST).build();
-        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Data.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
-        Data.getFutures().offer(response);
-
-        response.thenAcceptAsync((res) -> {
-                removeFuture(response);
-                System.out.println(res.body());
-                String[] translation = res.body().split("translatedText\": \"");
-                this.header = translation[1].substring(0, translation[1].lastIndexOf("\""));
-        }).join();
-    }
 
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
