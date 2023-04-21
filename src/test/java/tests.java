@@ -1,5 +1,4 @@
 
-import com.google.api.client.http.HttpHeaders;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
