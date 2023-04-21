@@ -136,7 +136,7 @@ public class WebsiteData {
                 }
             }
             //on exception call this
-        }).exceptionally((exc) -> {
+        }).exceptionally((exception) -> {
             //removing request from active requests as its done
             removeFuture(response);
 
@@ -152,7 +152,7 @@ public class WebsiteData {
         }
     }
 
-    public void killAllFutures() {
+    public static void killAllFutures() {
         //cancelling all requests that fell under unexpected error cases
         for (CompletableFuture<HttpResponse<String>> future : Data.getFutures()) {
             future.cancel(true);

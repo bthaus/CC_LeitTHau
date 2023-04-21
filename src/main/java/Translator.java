@@ -7,6 +7,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class Translator {
     String language;
+    String errorMessage ="";
 
 
     public boolean checkForTranslationApiKey(){
@@ -43,8 +44,14 @@ public class Translator {
         response.thenAcceptAsync((res) -> {
             child.removeFuture(response);
             String[] translation = res.body().split("translatedText\": \"");
-            //TODO add exceptionhandler in case API Plan ran out
+            errorMessage = translation[0];
             child.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
+        }).exceptionally((exception) -> {
+            if(!Data.getFutures().isEmpty()) {
+                WebsiteData.killAllFutures();
+                System.out.println(errorMessage);
+            }
+            return null;
         }).join();
     }
 
