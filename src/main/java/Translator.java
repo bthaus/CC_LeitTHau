@@ -6,8 +6,8 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 public class Translator {
-    String language;
-    String errorMessage ="";
+    private String language;
+    private String errorMessage ="";
 
 
     public boolean checkForTranslationApiKey(){
@@ -15,7 +15,7 @@ public class Translator {
 
     }
     public void translateChildren(String language){
-        this.language =language;
+        this.language = language;
         if(checkForTranslationApiKey()) {
             for (WebsiteData child : Data.getChildren()) {
                 translate(child);
@@ -54,7 +54,4 @@ public class Translator {
             return null;
         }).join();
     }
-
-
-
 }

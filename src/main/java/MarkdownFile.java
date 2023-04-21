@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class MarkdownFile {
 
     private ConcurrentLinkedDeque<WebsiteData> children;
+
     public void createMarkdownFile(ConcurrentLinkedDeque<WebsiteData> children){
         this.children = children;
 
@@ -30,7 +31,6 @@ public class MarkdownFile {
             //TODO debug feature delete
             if (child.isSuccessful()) Data.successes++;
             else Data.failures++;
-
         }
         return markdownString;
     }

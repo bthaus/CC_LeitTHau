@@ -19,9 +19,6 @@ public class Main {
 
         markdownFile.createMarkdownFile(Data.getChildren());
     }
-
-
-
 }
 
 /** todo things cc still got to do
