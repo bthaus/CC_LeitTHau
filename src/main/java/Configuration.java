@@ -14,9 +14,6 @@ public class Configuration {  //WebsiteData.Data class
     public static final boolean SLOW_MODE = true;
 
 
-
-
-
     //TODO delete debug feature
     public static int successes = 0;
     public static int failures = 0;

@@ -37,7 +37,7 @@ public class MarkdownFactory {
         formattedLine = concatNElements(formattedLine,"#", Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(" ");
         formattedLine = concatNElements(formattedLine,"-", Configuration.getMaxCrawlDepth()-node.getDepth());
 
-        if (node.isSuccessful()){
+        if   (node.isSuccessful()){
             formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");
         }else{
             formattedLine = formattedLine.concat("> *" + node.getUrl() + "* <br>\n");

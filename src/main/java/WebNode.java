@@ -9,28 +9,23 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 
 public class WebNode implements Syncer {
-    private static WebNode parent;
-
     private String url;
-    private String header="I am a leaf and hence have no header";
+    private String header = "I am a leaf and hence have no header";
     private int depth;
     private boolean successful;
     private int tries;
     public static int counter=0;
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
-    private static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
-    private static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
+    private final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
+    private final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
 
     public WebNode( String url, int depth, boolean success)  {
-
         this.url = url;
         this.depth = depth;
         this.successful = success;
         setTries(1);
 
     }
-
-
 
     //auxiliary constructor for mockdata
     public WebNode(String header){
@@ -45,7 +40,7 @@ public class WebNode implements Syncer {
         }
         //second recursion base case
         if(tries > Configuration.MAX_TRIES){
-           childrenNodes.offer(new WebNode( url, depth, false));
+           childrenNodes.offer(new WebNode(url, depth, false));
             urlList.offer(url);
             return;
         }
@@ -62,7 +57,7 @@ public class WebNode implements Syncer {
         CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
 
         // saving away all future-objects for synchronization
-       offerFuture(response);
+        offerFuture(response);
 
         //asynchronously handle response
         response.thenAcceptAsync((res) -> {
@@ -115,14 +110,6 @@ public class WebNode implements Syncer {
     /**
      * Getter and Setter methods TODO remove methods not needed from outside -
      */
-    public static WebNode getParent() {
-        return parent;
-    }
-
-    public static void setParent(WebNode parent) {
-        WebNode.parent = parent;
-    }
-
     public String getUrl() {
         return url;
     }
@@ -141,12 +128,6 @@ public class WebNode implements Syncer {
         }else{
             this.header = header.toString();
         }
-
-
-        if (parent == null) {
-            parent = this;
-        }
-
     }
     public void setHeader(String header){
         this.header=header;
