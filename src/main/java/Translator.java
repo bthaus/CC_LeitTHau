@@ -43,7 +43,6 @@ public class Translator {
      }*/
 
     public void translate(WebNode node){
-
         JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(node.getHeader(),"en", language);
         String bodyString = JsonHelper.getJsonString(body);
 

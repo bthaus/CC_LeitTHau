@@ -50,7 +50,4 @@ public class Configuration {  //WebsiteData.Data class
         Configuration.errorUrls = errorUrls;
     }
 
-
-
-
 }

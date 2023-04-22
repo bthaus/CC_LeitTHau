@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
+
     public void offerFuture(CompletableFuture<HttpResponse<String>> future){
         getFutures().offer(future);
     }
