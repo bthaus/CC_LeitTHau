@@ -5,6 +5,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class WebsiteData {
     private static WebsiteData parent;
@@ -15,6 +16,7 @@ public class WebsiteData {
     private int depth;
     private boolean successful;
     private int tries;
+    private  ConcurrentLinkedDeque<WebsiteData> children = new ConcurrentLinkedDeque<>();
 
     public WebsiteData(HttpHeaders header, String url, int depth, boolean success) {
         checkObjectStatus(header, success);
@@ -50,30 +52,31 @@ public class WebsiteData {
         //every second it is checked if no further requests are called
         int keepAlive = 0;
         int temp = 0;
-        while (Data.getFutures().size() > 0) {
+        while (config.getFutures().size() > 0) {
             try {
                 Thread.sleep(1000);
 
-                if (temp == Data.getFutures().size()) {
+                if (temp == config.getFutures().size()) {
                     keepAlive++;
                 } else {
                     keepAlive = 0;
                 }
 
-                temp = Data.getFutures().size();
+                temp = config.getFutures().size();
 
                 //if for timeout seconds no request is added or removed all requests are cancelled
-                if (keepAlive > Data.CLIENT_TIMEOUT_IN_SECONDS) {
+                if (keepAlive > config.CLIENT_TIMEOUT_IN_SECONDS) {
                     System.out.println("remaining requests cancelled due to timeout");
-                    killAllFutures();
+                    config.killAllFutures();
+                    break;
                 }
-                System.out.println(Data.getFutures().size() + " requests active" );
+                System.out.println(config.getFutures().size() + " requests active" );
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         //technically not neccessary but for peace of mind
-        killAllFutures();
+        config.killAllFutures();
     }
 
     public void crawl() {
@@ -83,34 +86,28 @@ public class WebsiteData {
             return;
         }
         //second recursion base case
-        if(tries > Data.MAX_TRIES){
-            Data.getChildren().offer(new WebsiteData(null, url, depth, false));
-            Data.getErrorUrls().offer(url);
+        if(tries > config.MAX_TRIES){
+           children.offer(new WebsiteData(null, url, depth, false));
+            config.getErrorUrls().offer(url);
             return;
         }
         //don't crawl the same page twice
-        if ((Data.getUrlList().contains(url) || Data.getErrorUrls().contains(url)) && tries == 1) {
+        if ((config.getUrlList().contains(url) || (config.getErrorUrls().contains(url)) && tries == 1)) {
             return;
         }
         //saving already crawled urls
-        Data.getUrlList().offer(url);
+        config.getUrlList().offer(url);
 
         //creating request
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         HttpRequest req = builder.GET().build();
-        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Data.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
+        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(config.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
 
         // saving away all future-objects for synchronization
-        Data.getFutures().offer(response);
+        config.getFutures().offer(response);
 
         //asynchrounusly handle response
         response.thenAcceptAsync((res) -> {
-
-            //creating website data instance
-            WebsiteData fetched = new WebsiteData(res.headers(), url, depth, true);
-
-            //placing data as child in parent node
-            Data.getChildren().offer(fetched);
 
             //removing future from active requests
             removeFuture(response);
@@ -130,13 +127,15 @@ public class WebsiteData {
 
                 //checking for validity and recursively calling crawl
                 if (link.contains("https://") || link.contains("http://")) {
-                    crawl();
-                    WebsiteData child = new WebsiteData(null, link, getDepth()-1,true);
+                    WebsiteData child = new WebsiteData(res.headers(), link, getDepth()-1,true);
+                    children.offer(child);
                     child.crawl();
+
                 }
             }
             //on exception call this
         }).exceptionally((exception) -> {
+
             //removing request from active requests as its done
             removeFuture(response);
 
@@ -147,21 +146,14 @@ public class WebsiteData {
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-        if(depth <= 2 && Data.SLOW_MODE){
+        if(depth <= 1 && config.SLOW_MODE){
             response.join();
-        }
-    }
-
-    public static void killAllFutures() {
-        //cancelling all requests that fell under unexpected error cases
-        for (CompletableFuture<HttpResponse<String>> future : Data.getFutures()) {
-            future.cancel(true);
         }
     }
 
     //auxiliary method
     public void removeFuture(CompletableFuture<HttpResponse<String>> f) {
-        Data.getFutures().remove(f);
+        config.getFutures().remove(f);
     }
     public void print(){
         System.out.println("address: "+ url +" depth: "+depth+" headers: "+header+" error message: "+errorMessage);
@@ -227,6 +219,10 @@ public class WebsiteData {
 
     public void setTries(int tries) {
         this.tries = tries;
+    }
+
+    public ConcurrentLinkedDeque<WebsiteData> getChildren() {
+        return children;
     }
 
 
