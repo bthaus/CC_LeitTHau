@@ -6,8 +6,7 @@ import java.nio.file.Paths;
 
 public class MarkdownFactory {
 
-    public void createMarkdownFile(Webnode root){
-
+    public void createMarkdownFile(WebNode root){
         Path path = Paths.get("src/main/resources/markdown.md");
 
         try {
@@ -15,14 +14,15 @@ public class MarkdownFactory {
         }catch (IOException ex) {
             System.out.print("Invalid Path");
         }
+
         System.out.println(Configuration.successes + " successes");
         System.out.println(Configuration.failures + " failures");
     }
 
-    public StringBuilder getMarkdownString(Webnode node){
+    public StringBuilder getMarkdownString(WebNode node){
         StringBuilder markdownString = new StringBuilder();
             markdownString.append(getFormat(node));
-        for (Webnode child:node.getChildrenNodes()){
+        for (WebNode child : node.getChildrenNodes()){
             markdownString.append(getMarkdownString(child));
 
             //TODO debug feature delete
@@ -32,22 +32,22 @@ public class MarkdownFactory {
         return markdownString;
     }
 
-    public String getFormat(Webnode node){
+    public String getFormat(WebNode node){
         String formattedLine = "";
         formattedLine = concatNElements(formattedLine,"#", Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(" ");
         formattedLine = concatNElements(formattedLine,"-", Configuration.getMaxCrawlDepth()-node.getDepth());
 
-        if(node.isSuccessful()){
+        if (node.isSuccessful()){
             formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");
         }else{
             formattedLine = formattedLine.concat("> *" + node.getUrl() + "* <br>\n");
         }
-        formattedLine=formattedLine.concat(node.getHeader());
+        formattedLine = formattedLine.concat(node.getHeader() + "\n");
 
         return formattedLine;
     }
 
-    private String concatNElements(String word, String value, int repetitions){     //TODO find better methodname and parameter name
+    private String concatNElements(String word, String value, int repetitions){
         for (int i = 0; i <= repetitions; i++) {
             word = word.concat(value);
         }

@@ -19,7 +19,7 @@ public class tests {
 
     @Test
     public void testTranslation() {
-        Webnode data=new Webnode("test header with testvalue");
+        WebNode data=new WebNode("test header with testvalue");
         //TODO change data.translate("de");
         assertEquals("Testheader mit Testwert",data.getHeader());
     }

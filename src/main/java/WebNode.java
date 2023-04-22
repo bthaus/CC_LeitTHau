@@ -8,19 +8,18 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 
-public class Webnode {
-    private static Webnode parent;
+public class WebNode {
+    private static WebNode parent;
 
     private String url;
-    private String errorMessage;
     private String header;
     private int depth;
     private boolean successful;
     private int tries;
     private Synchronizer synchronizer;
-    private ConcurrentLinkedDeque<Webnode> childrenNodes = new ConcurrentLinkedDeque<>();
+    private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
 
-    public Webnode(HttpHeaders header, String url, int depth, boolean success, Synchronizer synchronizer) {
+    public WebNode(HttpHeaders header, String url, int depth, boolean success, Synchronizer synchronizer) {
         checkObjectStatus(header);
 
         this.url = url;
@@ -44,10 +43,9 @@ public class Webnode {
     }
 
     //auxiliary constructor for mockdata
-    public Webnode(String header){
+    public WebNode(String header){
         this.header = header;
     }
-
 
     public void crawl() {
         //guard clauses
@@ -57,7 +55,7 @@ public class Webnode {
         }
         //second recursion base case
         if(tries > Configuration.MAX_TRIES){
-           childrenNodes.offer(new Webnode(null, url, depth, false, synchronizer));
+           childrenNodes.offer(new WebNode(null, url, depth, false, synchronizer));
             offerErrorUrl(url);
             return;
         }
@@ -76,7 +74,7 @@ public class Webnode {
         // saving away all future-objects for synchronization
         synchronizer.offerFuture(response);
 
-        //asynchrounusly handle response
+        //asynchronously handle response
         response.thenAcceptAsync((res) -> {
 
             //removing future from active requests
@@ -97,7 +95,7 @@ public class Webnode {
 
                 //checking for validity and recursively calling crawl
                 if (link.contains("https://") || link.contains("http://")) {
-                    Webnode child = new Webnode(res.headers(), link, getDepth()-1, true, synchronizer);
+                    WebNode child = new WebNode(res.headers(), link, getDepth()-1, true, synchronizer);
                     childrenNodes.offer(child);
                     child.crawl();
                 }
@@ -127,23 +125,16 @@ public class Webnode {
         return Configuration.getUrlList().contains(url);
     }
 
-    //auxiliary method todo delete debug method
-    public void print(){
-        System.out.println("address: "+ url +" depth: "+depth+" headers: "+header+" error message: "+errorMessage);
-    }
-
-
-
 
     /**
      * Getter and Setter methods TODO remove methods not needed from outside -
      */
-    public static Webnode getParent() {
+    public static WebNode getParent() {
         return parent;
     }
 
-    public static void setParent(Webnode parent) {
-        Webnode.parent = parent;
+    public static void setParent(WebNode parent) {
+        WebNode.parent = parent;
     }
 
     public String getUrl() {
@@ -152,14 +143,6 @@ public class Webnode {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
     }
 
     public String getHeader() {
@@ -194,7 +177,7 @@ public class Webnode {
         this.tries = tries;
     }
 
-    public ConcurrentLinkedDeque<Webnode> getChildrenNodes() {
+    public ConcurrentLinkedDeque<WebNode> getChildrenNodes() {
         return childrenNodes;
     }
 
