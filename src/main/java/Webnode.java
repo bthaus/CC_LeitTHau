@@ -7,8 +7,9 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class WebsiteData {
-    private static WebsiteData parent;
+
+public class Webnode {
+    private static Webnode parent;
 
     private String url;
     private String errorMessage;
@@ -16,19 +17,21 @@ public class WebsiteData {
     private int depth;
     private boolean successful;
     private int tries;
-    private  ConcurrentLinkedDeque<WebsiteData> children = new ConcurrentLinkedDeque<>();
+    private Synchronizer synchronizer;
+    private ConcurrentLinkedDeque<Webnode> childrenNodes = new ConcurrentLinkedDeque<>();
 
-    public WebsiteData(HttpHeaders header, String url, int depth, boolean success) {
-        checkObjectStatus(header, success);
+    public Webnode(HttpHeaders header, String url, int depth, boolean success, Synchronizer synchronizer) {
+        checkObjectStatus(header);
 
         this.url = url;
         this.depth = depth;
         this.successful = success;
 
         setTries(1);
+        this.synchronizer = synchronizer;
     }
 
-    public void checkObjectStatus (HttpHeaders header, boolean success){
+    public void checkObjectStatus (HttpHeaders header){
         if(header == null){
             this.header = "no header";
         }else{
@@ -41,43 +44,10 @@ public class WebsiteData {
     }
 
     //auxiliary constructor for mockdata
-    public WebsiteData(String header){
+    public Webnode(String header){
         this.header = header;
     }
 
-
-
-    public void waitForAllRequests(){
-        //as this is no operating systems course i handeled joining for threads quite liberally.
-        //every second it is checked if no further requests are called
-        int keepAlive = 0;
-        int temp = 0;
-        while (config.getFutures().size() > 0) {
-            try {
-                Thread.sleep(1000);
-
-                if (temp == config.getFutures().size()) {
-                    keepAlive++;
-                } else {
-                    keepAlive = 0;
-                }
-
-                temp = config.getFutures().size();
-
-                //if for timeout seconds no request is added or removed all requests are cancelled
-                if (keepAlive > config.CLIENT_TIMEOUT_IN_SECONDS) {
-                    System.out.println("remaining requests cancelled due to timeout");
-                    config.killAllFutures();
-                    break;
-                }
-                System.out.println(config.getFutures().size() + " requests active" );
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        //technically not neccessary but for peace of mind
-        config.killAllFutures();
-    }
 
     public void crawl() {
         //guard clauses
@@ -86,31 +56,31 @@ public class WebsiteData {
             return;
         }
         //second recursion base case
-        if(tries > config.MAX_TRIES){
-           children.offer(new WebsiteData(null, url, depth, false));
-            config.getErrorUrls().offer(url);
+        if(tries > Configuration.MAX_TRIES){
+           childrenNodes.offer(new Webnode(null, url, depth, false, synchronizer));
+            offerErrorUrl(url);
             return;
         }
         //don't crawl the same page twice
-        if ((config.getUrlList().contains(url) || (config.getErrorUrls().contains(url)) && tries == 1)) {
+        if ((containsErrorUrl(url) || (containsErrorUrl(url)) && tries == 1)) {
             return;
         }
         //saving already crawled urls
-        config.getUrlList().offer(url);
+        offerErrorUrl(url);
 
         //creating request
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         HttpRequest req = builder.GET().build();
-        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(config.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
+        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
 
         // saving away all future-objects for synchronization
-        config.getFutures().offer(response);
+        synchronizer.offerFuture(response);
 
         //asynchrounusly handle response
         response.thenAcceptAsync((res) -> {
 
             //removing future from active requests
-            removeFuture(response);
+            synchronizer.removeFuture(response);
 
             //parsing body
             String hrefs[] = res.body().split("href=\"");
@@ -127,17 +97,16 @@ public class WebsiteData {
 
                 //checking for validity and recursively calling crawl
                 if (link.contains("https://") || link.contains("http://")) {
-                    WebsiteData child = new WebsiteData(res.headers(), link, getDepth()-1,true);
-                    children.offer(child);
+                    Webnode child = new Webnode(res.headers(), link, getDepth()-1, true, synchronizer);
+                    childrenNodes.offer(child);
                     child.crawl();
-
                 }
             }
             //on exception call this
         }).exceptionally((exception) -> {
 
             //removing request from active requests as its done
-            removeFuture(response);
+            synchronizer.removeFuture(response);
 
             //recursively calling crawl
             tries++;
@@ -146,15 +115,19 @@ public class WebsiteData {
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-        if(depth <= 1 && config.SLOW_MODE){
+        if(depth <= 1 && Configuration.SLOW_MODE){
             response.join();
         }
     }
 
-    //auxiliary method
-    public void removeFuture(CompletableFuture<HttpResponse<String>> f) {
-        config.getFutures().remove(f);
+    public void offerErrorUrl(String url){
+        Configuration.getUrlList().offer(url);
     }
+    public boolean containsErrorUrl(String url){
+        return Configuration.getUrlList().contains(url);
+    }
+
+    //auxiliary method todo delete debug method
     public void print(){
         System.out.println("address: "+ url +" depth: "+depth+" headers: "+header+" error message: "+errorMessage);
     }
@@ -165,12 +138,12 @@ public class WebsiteData {
     /**
      * Getter and Setter methods TODO remove methods not needed from outside -
      */
-    public static WebsiteData getParent() {
+    public static Webnode getParent() {
         return parent;
     }
 
-    public static void setParent(WebsiteData parent) {
-        WebsiteData.parent = parent;
+    public static void setParent(Webnode parent) {
+        Webnode.parent = parent;
     }
 
     public String getUrl() {
@@ -221,8 +194,8 @@ public class WebsiteData {
         this.tries = tries;
     }
 
-    public ConcurrentLinkedDeque<WebsiteData> getChildren() {
-        return children;
+    public ConcurrentLinkedDeque<Webnode> getChildrenNodes() {
+        return childrenNodes;
     }
 
 

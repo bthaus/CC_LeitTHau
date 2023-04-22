@@ -1,21 +1,23 @@
 public class Main {
 
-    public static WebsiteData root;
+    public static Webnode root;
     public static MarkdownFactory markdownFactory;
     public static Translator translator;
+    public  static Synchronizer synchronizer;
 
     public static void main(String[] args) {
-        config.setCrawlDepth(Integer.parseInt(args[1]));
+        Configuration.setMaxCrawlDepth(Integer.parseInt(args[1]));
 
-        root = new WebsiteData(null, args[0], config.getCrawlDepth(),true);
+        synchronizer = new Synchronizer();
+        root = new Webnode(null, args[0], Configuration.getMaxCrawlDepth(),true, synchronizer);
         markdownFactory = new MarkdownFactory();
-        translator = new Translator(args[2]);
+        translator = new Translator(args[2], synchronizer);
 
         root.crawl();
-        root.waitForAllRequests();
+        synchronizer.waitForAllRequests();
 
         translator.deepTranslate(root);
-        root.waitForAllRequests();
+        synchronizer.waitForAllRequests();
 
         markdownFactory.createMarkdownFile(root);
     }

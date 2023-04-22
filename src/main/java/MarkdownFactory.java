@@ -6,9 +6,7 @@ import java.nio.file.Paths;
 
 public class MarkdownFactory {
 
-
-
-    public void createMarkdownFile(WebsiteData root){
+    public void createMarkdownFile(Webnode root){
 
         Path path = Paths.get("src/main/resources/markdown.md");
 
@@ -17,26 +15,27 @@ public class MarkdownFactory {
         }catch (IOException ex) {
             System.out.print("Invalid Path");
         }
-        System.out.println(config.successes + " successes");
-        System.out.println(config.failures + " failures");
+        System.out.println(Configuration.successes + " successes");
+        System.out.println(Configuration.failures + " failures");
     }
 
-    public StringBuilder getMarkdownString(WebsiteData node){
+    public StringBuilder getMarkdownString(Webnode node){
         StringBuilder markdownString = new StringBuilder();
             markdownString.append(getFormat(node));
-        for (WebsiteData child:node.getChildren()){
+        for (Webnode child:node.getChildrenNodes()){
             markdownString.append(getMarkdownString(child));
+
             //TODO debug feature delete
-            if (child.isSuccessful()) config.successes++;
-            else config.failures++;
+            if (child.isSuccessful()) Configuration.successes++;
+            else Configuration.failures++;
         }
         return markdownString;
     }
 
-    public String getFormat(WebsiteData node){
+    public String getFormat(Webnode node){
         String formattedLine = "";
-        formattedLine = concatNElements(formattedLine,"#", config.getCrawlDepth()-node.getDepth()-1).concat(" ");
-        formattedLine = concatNElements(formattedLine,"-", config.getCrawlDepth()-node.getDepth());
+        formattedLine = concatNElements(formattedLine,"#", Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(" ");
+        formattedLine = concatNElements(formattedLine,"-", Configuration.getMaxCrawlDepth()-node.getDepth());
 
         if(node.isSuccessful()){
             formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");

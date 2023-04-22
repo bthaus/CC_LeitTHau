@@ -2,7 +2,6 @@
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class tests {
     @Test
@@ -20,7 +19,7 @@ public class tests {
 
     @Test
     public void testTranslation() {
-        WebsiteData data=new WebsiteData("test header with testvalue");
+        Webnode data=new Webnode("test header with testvalue");
         //TODO change data.translate("de");
         assertEquals("Testheader mit Testwert",data.getHeader());
     }
