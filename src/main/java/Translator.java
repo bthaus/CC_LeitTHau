@@ -5,16 +5,16 @@ import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
-public class Translator {
+public class Translator implements Syncer{
     private final String language;
-    private final Synchronizer synchronizer;
+
     private String possibleErrorMessage = "";
     private boolean running;
 
 
-    public Translator(String language, Synchronizer synchronizer) {
+    public Translator(String language) {
         this.language = language;
-        this.synchronizer = synchronizer;
+
     }
 
     public boolean checkForTranslationApiKey(){
@@ -27,7 +27,7 @@ public class Translator {
             for (WebNode child : node.getChildrenNodes()) {
                 if (!running) return;
                 deepTranslate(child);
-                System.out.println(synchronizer.getFutures().size());
+                System.out.println(getFutures().size());
             }
         }
     }
@@ -48,10 +48,10 @@ public class Translator {
 
         HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key", Configuration.TRANSLATION_API_KEY,"X-RapidAPI-Host", Configuration.TRANSLATION_API_HOST).build();
         CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
-        synchronizer.offerFuture(response);
+       offerFuture(response);
 
         response.thenAcceptAsync((res) -> {
-            synchronizer.removeFuture(response);
+           removeFuture(response);
             String[] translation = res.body().split("translatedText\": \"");
             possibleErrorMessage = translation[0];
             if (isFatal(res)) return;
@@ -59,9 +59,9 @@ public class Translator {
             node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
 
         }).exceptionally((exception) -> {
-            if (!synchronizer.getFutures().isEmpty()) {
+            if (!getFutures().isEmpty()) {
                 stop();
-                synchronizer.killAllFutures();
+              killAllFutures();
             }
             return null;
         }).join();
@@ -76,7 +76,7 @@ public class Translator {
         if (res.statusCode() > 299){
             System.out.println(possibleErrorMessage);
             stop();
-            synchronizer.killAllFutures();
+           killAllFutures();
             return true;
         }
         return false;

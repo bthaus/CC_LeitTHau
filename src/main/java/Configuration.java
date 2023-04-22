@@ -14,8 +14,7 @@ public class Configuration {  //WebsiteData.Data class
     public static final boolean SLOW_MODE = true;
 
 
-    private static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
-    private static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
+
 
 
     //TODO delete debug feature
@@ -34,20 +33,6 @@ public class Configuration {  //WebsiteData.Data class
     }
 
 
-    public static ConcurrentLinkedDeque<String> getUrlList() {
-        return urlList;
-    }
 
-    public static void setUrlList(ConcurrentLinkedDeque<String> urlList) {
-        Configuration.urlList = urlList;
-    }
-
-    public static ConcurrentLinkedDeque<String> getErrorUrls() {
-        return errorUrls;
-    }
-
-    public static void setErrorUrls(ConcurrentLinkedDeque<String> errorUrls) {
-        Configuration.errorUrls = errorUrls;
-    }
 
 }
