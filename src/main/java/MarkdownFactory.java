@@ -33,16 +33,18 @@ public class MarkdownFactory {
         return markdownString;
     }
 
-    public String getFormat(WebsiteData child){
+    public String getFormat(WebsiteData node){
         String formattedLine = "";
-        formattedLine = concatNElements(formattedLine,"#", config.getCrawlDepth()-child.getDepth()-1).concat(" ");
-        formattedLine = concatNElements(formattedLine,"-", config.getCrawlDepth()-child.getDepth());
+        formattedLine = concatNElements(formattedLine,"#", config.getCrawlDepth()-node.getDepth()-1).concat(" ");
+        formattedLine = concatNElements(formattedLine,"-", config.getCrawlDepth()-node.getDepth());
 
-        if(child.isSuccessful()){
-            formattedLine = formattedLine.concat("> **" + child.getUrl() + "** <br>\n");
+        if(node.isSuccessful()){
+            formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");
         }else{
-            formattedLine = formattedLine.concat("> *" + child.getUrl() + "* <br>\n");
+            formattedLine = formattedLine.concat("> *" + node.getUrl() + "* <br>\n");
         }
+        formattedLine=formattedLine.concat(node.getHeader());
+
         return formattedLine;
     }
 
