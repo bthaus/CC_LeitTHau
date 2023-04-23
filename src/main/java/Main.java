@@ -3,7 +3,6 @@ public class Main {
     public static MarkdownFactory markdownFactory;
     public static Translator translator;
 
-
     public static void main(String[] args) {
         Configuration.setMaxCrawlDepth(Integer.parseInt(args[1]));
         Configuration.setRootUrl(args[0]);
@@ -12,11 +11,11 @@ public class Main {
         markdownFactory = new MarkdownFactory();
         translator = new Translator(args[2]);
 
-        //root.crawl();
-        //root.waitForRequests();
+        root.crawl();
+        root.waitForRequests();
 
-        //translator.deepTranslate(root);
-        //translator.waitForRequests();
+        translator.deepTranslate(root);
+        translator.waitForRequests();
 
         markdownFactory.createMarkdownFile(root);
     }

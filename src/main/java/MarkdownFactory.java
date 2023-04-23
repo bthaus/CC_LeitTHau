@@ -11,7 +11,7 @@ public class MarkdownFactory {
         try {
             Files.writeString(path, getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
-            System.out.print("Invalid Path");
+            System.out.println("Invalid Path");
         }
 
         //Todo deleta debug help
@@ -38,9 +38,9 @@ public class MarkdownFactory {
         formattedLine = concatNElements(formattedLine,"#", Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(" ");
         formattedLine = concatNElements(formattedLine,"-", Configuration.getMaxCrawlDepth()-node.getDepth());
 
-        if   (node.isSuccessful()){
+        if (node.isSuccessful()){
             formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");
-        }else{
+        } else{
             formattedLine = formattedLine.concat("> *" + node.getUrl() + "* <br>\n");
         }
         formattedLine = formattedLine.concat(node.getHeader() + "\n");

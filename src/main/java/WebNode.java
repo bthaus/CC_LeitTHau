@@ -16,8 +16,8 @@ public class WebNode implements Syncer {
     private int tries;
 
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
-    private final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
-    private final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
+    public final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
+    public final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
 
     public WebNode( String url, int depth, boolean success)  {
         this.url = url;
@@ -33,7 +33,7 @@ public class WebNode implements Syncer {
 
 
     public void crawl() {
-        if (checkBaseCases()){
+        if (checkBaseCases()){      //TODO check bodos notes
             return;
         }
 
@@ -56,18 +56,18 @@ public class WebNode implements Syncer {
             String hrefs[] = res.body().split("href=\"");
 
             //iterating over all links
-            for (String a : hrefs) {
+            for (String link : hrefs) {
                 //parsing link
-                String link;
+                String linkSnipped;
                 try {
-                    link = a.substring(0, a.indexOf("\""));
+                    linkSnipped = link.substring(0, link.indexOf("\""));
                 } catch (Exception e) {
-                    link = a;
+                    linkSnipped = link;
                 }
 
                 //checking for validity and recursively calling crawl
-                if (link.contains("https://") || link.contains("http://")) {
-                    WebNode child = new WebNode( link, getDepth()-1, true);
+                if (linkSnipped.contains("https://") || linkSnipped.contains("http://")) {
+                    WebNode child = new WebNode( linkSnipped, getDepth()-1, true);
                     childrenNodes.offer(child);
                     child.crawl();
 
@@ -91,13 +91,13 @@ public class WebNode implements Syncer {
         }
     }
 
-    public CompletableFuture<HttpResponse<String>> createRequest(){
+    public CompletableFuture<HttpResponse<String>> createRequest() {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
         HttpRequest req = builder.GET().build();
         return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
     }
 
-    public boolean checkBaseCases(){
+    public boolean checkBaseCases() {
         //guard clauses
         //first recursion base case
         if (depth == 0) {
@@ -171,6 +171,8 @@ public class WebNode implements Syncer {
     public ConcurrentLinkedDeque<WebNode> getChildrenNodes() {
         return childrenNodes;
     }
+
+
 
 
 

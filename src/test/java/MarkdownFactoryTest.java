@@ -1,10 +1,12 @@
-
 import org.junit.Before;
 
 import org.junit.Test;
 import org.mockito.*;
+import org.mockito.internal.matchers.Null;
 
 import java.io.*;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static org.junit.Assert.*;
@@ -30,12 +32,10 @@ public class MarkdownFactoryTest {
         openMocks(this);
 
         childrenNodes = new ConcurrentLinkedDeque<>();
-        /*childrenNodes.offer(webNodeMock);
-        childrenNodes.offer(webNodeMock);
-*/
+
         when(webNodeMock.getUrl()).thenReturn("");
         when(webNodeMock.getDepth()).thenReturn(1);
-        when(webNodeMock.isSuccessful()).thenReturn(false);
+        when(webNodeMock.isSuccessful()).thenReturn(true);
         when(webNodeMock.getHeader()).thenReturn(defaultHeader);
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
 
@@ -48,7 +48,13 @@ public class MarkdownFactoryTest {
 
     @Test
     public void getFormatTest(){
-        System.out.println(markdownFactory.getFormat(webNodeMock));
+        String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
+        assertEquals(expected, markdownFactory.getFormat(webNodeMock));
+    }
+    @Test
+    public void getFormatVerifyTest(){
+        markdownFactory.getFormat(webNodeMock);
+        verify(webNodeMock, times(1)).getUrl();
     }
 
     @Test
@@ -58,10 +64,10 @@ public class MarkdownFactoryTest {
     }
 
     @Test
-    public void getMarkdownStringTest2(){
+    public void getMarkdownStringVerifyTest(){
         //System.out.println(markdownFactory.getMarkdownString(webNodeMock));
-        StringBuilder expected = new StringBuilder("## ---> ** <br>\n" + "I am a leaf and hence have no header\n");
-        assertEquals(expected, markdownFactory.getMarkdownString(webNodeMock));
+        String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
+        assertEquals(expected, markdownFactory.getMarkdownString(webNodeMock).toString());
     }
 
     @Test
@@ -78,7 +84,38 @@ public class MarkdownFactoryTest {
                 e.printStackTrace();
             }
 
-            assertEquals(" -> **"+url+"** <br>", markdownFileContent);
+            assertEquals("## ---> **** <br>", markdownFileContent);
     }
+
+    @Test
+    public void createMarkdownFileNoPathTest(){
+        markdownFactory.path =  null;
+        assertThrows(NullPointerException.class, () -> {
+            markdownFactory.createMarkdownFile(webNodeMock);
+        });
+    }
+
+    //todo fix or delete
+    /*@Test
+    public void checkCreatedMarkdownFileWithChildren(){
+        childrenNodes.offer(webNodeMock);
+        when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
+        markdownFactory.createMarkdownFile(webNodeMock);
+
+
+        String filePath = markdownFactory.path.toString();
+        String markdownFileContent = "";
+        try {
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            markdownFileContent += bufferedReader.readLine();
+            bufferedReader.close();
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals("## ---> **** <br>", markdownFileContent);
+    }*/
 
 }
