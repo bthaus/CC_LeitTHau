@@ -5,23 +5,24 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MarkdownFactory {
+    public Path path = Paths.get("src/main/resources/markdown.md");
 
     public void createMarkdownFile(WebNode root){
-        Path path = Paths.get("src/main/resources/markdown.md");
-
         try {
             Files.writeString(path, getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
             System.out.print("Invalid Path");
         }
 
+        //Todo deleta debug help
         System.out.println(Configuration.successes + " successes");
         System.out.println(Configuration.failures + " failures");
     }
 
     public StringBuilder getMarkdownString(WebNode node){
         StringBuilder markdownString = new StringBuilder();
-            markdownString.append(getFormat(node));
+        markdownString.append(getFormat(node));
+
         for (WebNode child : node.getChildrenNodes()){
             markdownString.append(getMarkdownString(child));
 

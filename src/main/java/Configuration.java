@@ -7,6 +7,7 @@ public class Configuration {  //WebsiteData.Data class
     public static final String TRANSLATION_API_HOST = "google-translator9.p.rapidapi.com";
     public static final boolean doIHaveATranslationApiKey = true;
 
+    private static String rootUrl;
     private static int maxCrawlDepth;
 
     public static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
@@ -29,7 +30,11 @@ public class Configuration {  //WebsiteData.Data class
         Configuration.maxCrawlDepth = maxCrawlDepth;
     }
 
+    public static String getRootUrl() {
+        return rootUrl;
+    }
 
-
-
+    public static void setRootUrl(String rootUrl) {
+        Configuration.rootUrl = rootUrl;
+    }
 }
