@@ -7,6 +7,7 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="Clean_Code_LeitTHau" />
+        <module name="CC_LeitTHau" />
       </profile>
     </annotationProcessing>
   </component>
