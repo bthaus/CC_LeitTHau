@@ -1,5 +1,4 @@
 public class Main {
-
     public static WebNode root;
     public static MarkdownFactory markdownFactory;
     public static Translator translator;
@@ -15,7 +14,6 @@ public class Main {
 
         root.crawl();
         root.waitForRequests();
-        System.out.println(WebNode.counter);
 
         translator.deepTranslate(root);
         translator.waitForRequests();

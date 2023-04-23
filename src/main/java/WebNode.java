@@ -14,7 +14,7 @@ public class WebNode implements Syncer {
     private int depth;
     private boolean successful;
     private int tries;
-    public static int counter=0;
+
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
     private final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     private final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
@@ -24,7 +24,6 @@ public class WebNode implements Syncer {
         this.depth = depth;
         this.successful = success;
         setTries(1);
-
     }
 
     //auxiliary constructor for mockdata
@@ -32,29 +31,17 @@ public class WebNode implements Syncer {
         this.header = header;
     }
 
+
     public void crawl() {
-        //guard clauses
-        //first recursion base case
-        if (depth == 0) {
+        if (checkBaseCases()){
             return;
         }
-        //second recursion base case
-        if(tries > Configuration.MAX_TRIES){
-           childrenNodes.offer(new WebNode(url, depth, false));
-            urlList.offer(url);
-            return;
-        }
-        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url. so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
-        if ((urlList.contains(url) && tries == 1) || (errorUrls.contains(url))) {
-            return;
-        }
+
         //saving already crawled urls
         urlList.offer(url);
 
         //creating request
-        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
-        HttpRequest req = builder.GET().build();
-        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());     //TODO remember last lecture, maybe make it less nested..
+        CompletableFuture<HttpResponse<String>> response = createRequest();
 
         // saving away all future-objects for synchronization
         offerFuture(response);
@@ -104,6 +91,30 @@ public class WebNode implements Syncer {
         }
     }
 
+    public CompletableFuture<HttpResponse<String>> createRequest(){
+        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));
+        HttpRequest req = builder.GET().build();
+        return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
+    }
+
+    public boolean checkBaseCases(){
+        //guard clauses
+        //first recursion base case
+        if (depth == 0) {
+            return true;
+        }
+        //second recursion base case
+        if(tries > Configuration.MAX_TRIES){
+            childrenNodes.offer(new WebNode(url, depth, false));
+            urlList.offer(url);
+            return true;
+        }
+        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url. so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+        if ((urlList.contains(url) && tries == 1) || (errorUrls.contains(url))) {
+            return true;
+        }
+        return false;
+    }
 
 
 
