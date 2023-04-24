@@ -26,6 +26,7 @@ public class Translator implements Syncer{
         if (checkForTranslationApiKey()) {
             for (WebNode child : node.getChildrenNodes()) {
                 if (!running) return;
+
                 deepTranslate(child);
                 System.out.println(getFutures().size());
             }
@@ -77,7 +78,7 @@ public class Translator implements Syncer{
         if (res.statusCode() > Configuration.LOWEST_FATAL_STATUS_CODE){
             System.out.println(possibleErrorMessage);
             stop();
-           killAllFutures();
+            killAllFutures();
             return true;
         }
         return false;

@@ -19,11 +19,11 @@ public class WebNode implements Syncer {
 <span class="fc" id="L19">    public final static ConcurrentLinkedDeque&lt;String&gt; urlList = new ConcurrentLinkedDeque&lt;&gt;();</span>
 <span class="fc" id="L20">    public final static ConcurrentLinkedDeque&lt;String&gt; errorUrls = new ConcurrentLinkedDeque&lt;&gt;();</span>
 
-<span class="fc" id="L22">    public WebNode( String url, int depth, boolean success)  {</span>
+<span class="fc" id="L22">    public WebNode(String url, int depth, boolean success)  {</span>
 <span class="fc" id="L23">        this.url = url;</span>
 <span class="fc" id="L24">        this.depth = depth;</span>
 <span class="fc" id="L25">        this.successful = success;</span>
-<span class="fc" id="L26">        setTries(1);</span>
+<span class="fc" id="L26">        tries = 1;</span>
 <span class="fc" id="L27">    }</span>
 
     //auxiliary constructor for mockdata
@@ -33,87 +33,89 @@ public class WebNode implements Syncer {
 
 
     public void crawl() {
-<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (checkBaseCases()){      //TODO check bodos notes</span>
+<span class="fc bfc" id="L36" title="All 2 branches covered.">        if (isBaseCase()){      //TODO check bodos notes</span>
 <span class="fc" id="L37">            return;</span>
         }
 
-        //saving already crawled urls
-<span class="fc" id="L41">        urlList.offer(url);</span>
-
         //creating request
-<span class="fc" id="L44">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; response = createRequest();</span>
+<span class="fc" id="L41">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; response = createRequest();</span>
+
+        //saving already crawled urls
+<span class="fc" id="L44">        urlList.offer(url);</span>
 
         // saving away all future-objects for synchronization
 <span class="fc" id="L47">        offerFuture(response);</span>
 
+
         //asynchronously handle response
-<span class="fc" id="L50">        response.thenAcceptAsync((res) -&gt; {</span>
-<span class="fc" id="L51">            setHeader(res.headers());</span>
+<span class="fc" id="L51">        response.thenAcceptAsync((res) -&gt; {</span>
+<span class="fc" id="L52">            setHeader(res.headers());</span>
             //removing future from active requests
-<span class="fc" id="L53">            removeFuture(response);</span>
+<span class="fc" id="L54">            removeFuture(response);</span>
 
             //parsing body
-<span class="fc" id="L56">            String hrefs[] = res.body().split(&quot;href=\&quot;&quot;);</span>
+<span class="fc" id="L57">            String hrefs[] = res.body().split(&quot;href=\&quot;&quot;);</span>
 
             //iterating over all links
-<span class="fc bfc" id="L59" title="All 2 branches covered.">            for (String a : hrefs) {</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">            for (String link : hrefs) {</span>
                 //parsing link
-                String link;
+                String linkSnipped;
                 try {
-<span class="fc" id="L63">                    link = a.substring(0, a.indexOf(&quot;\&quot;&quot;));</span>
-<span class="fc" id="L64">                } catch (Exception e) {</span>
-<span class="fc" id="L65">                    link = a;</span>
-<span class="fc" id="L66">                }</span>
+<span class="fc" id="L64">                    linkSnipped = link.substring(0, link.indexOf(&quot;\&quot;&quot;));</span>
+<span class="fc" id="L65">                } catch (Exception e) {</span>
+<span class="fc" id="L66">                    linkSnipped = link;</span>
+<span class="fc" id="L67">                }</span>
 
                 //checking for validity and recursively calling crawl
-<span class="fc bfc" id="L69" title="All 4 branches covered.">                if (link.contains(&quot;https://&quot;) || link.contains(&quot;http://&quot;)) {</span>
-<span class="fc" id="L70">                    WebNode child = new WebNode( link, getDepth()-1, true);</span>
-<span class="fc" id="L71">                    childrenNodes.offer(child);</span>
-<span class="fc" id="L72">                    child.crawl();</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">                if (linkSnipped.contains(&quot;https://&quot;) || linkSnipped.contains(&quot;http://&quot;)) {</span>
+<span class="fc" id="L71">                    WebNode child = new WebNode( linkSnipped, getDepth()-1, true);</span>
+<span class="fc" id="L72">                    childrenNodes.offer(child);</span>
+<span class="fc" id="L73">                    child.crawl();</span>
 
                 }
             }
             //on exception call this
-<span class="fc" id="L77">        }).exceptionally((exception) -&gt; {</span>
+<span class="fc" id="L78">        }).exceptionally((exception) -&gt; {</span>
 
             //removing request from active requests as its done
-<span class="fc" id="L80">           removeFuture(response);</span>
+<span class="fc" id="L81">           removeFuture(response);</span>
 
             //recursively calling crawl
-<span class="fc" id="L83">            tries++;</span>
-<span class="fc" id="L84">            crawl();</span>
-<span class="fc" id="L85">            return null;</span>
+<span class="fc" id="L84">            tries++;</span>
+<span class="fc" id="L85">            crawl();</span>
+<span class="fc" id="L86">            return null;</span>
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-<span class="fc bfc" id="L89" title="All 2 branches covered.">        if(depth &lt;= 1 &amp;&amp; Configuration.SLOW_MODE){</span>
-<span class="fc" id="L90">            response.join();</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if(depth &lt;= 1 &amp;&amp; Configuration.SLOW_MODE){</span>
+<span class="fc" id="L91">            response.join();</span>
         }
-<span class="fc" id="L92">    }</span>
+<span class="fc" id="L93">    }</span>
 
     public CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; createRequest() {
-<span class="fc" id="L95">        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));</span>
-<span class="fc" id="L96">        HttpRequest req = builder.GET().build();</span>
-<span class="fc" id="L97">        return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());</span>
+<span class="fc" id="L96">        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));</span>
+<span class="fc" id="L97">        HttpRequest req = builder.GET().build();</span>
+<span class="fc" id="L98">        return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());</span>
     }
 
-    public boolean checkBaseCases() {
+    public boolean isBaseCase() {
         //guard clauses
         //first recursion base case
-<span class="fc bfc" id="L103" title="All 2 branches covered.">        if (depth == 0) {</span>
-<span class="fc" id="L104">            return true;</span>
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (depth == 0) {</span>
+<span class="fc" id="L105">            return true;</span>
         }
         //second recursion base case
-<span class="pc bpc" id="L107" title="1 of 2 branches missed.">        if(tries &gt; Configuration.MAX_TRIES){</span>
-<span class="nc" id="L108">            childrenNodes.offer(new WebNode(url, depth, false));</span>
-<span class="nc" id="L109">            urlList.offer(url);</span>
-<span class="nc" id="L110">            return true;</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">        if(tries &gt; Configuration.MAX_TRIES){</span>
+<span class="nc" id="L109">            childrenNodes.offer(new WebNode(url, depth, false));</span>
+<span class="nc" id="L110">            urlList.offer(url);</span>
+<span class="nc" id="L111">            return true;</span>
         }
-        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url. so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
-<span class="pc bpc" id="L113" title="1 of 6 branches missed.">        if ((urlList.contains(url) &amp;&amp; tries == 1) || (errorUrls.contains(url))) {</span>
-<span class="fc" id="L114">            return true;</span>
+        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
+        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+<span class="pc bpc" id="L115" title="1 of 6 branches missed.">        if ((urlList.contains(url) &amp;&amp; tries == 1) || (errorUrls.contains(url))) {</span>
+<span class="fc" id="L116">            return true;</span>
         }
-<span class="fc" id="L116">        return false;</span>
+<span class="fc" id="L118">        return false;</span>
     }
 
 
@@ -122,54 +124,54 @@ public class WebNode implements Syncer {
      * Getter and Setter methods TODO remove methods not needed from outside -
      */
     public String getUrl() {
-<span class="nc" id="L125">        return url;</span>
+<span class="nc" id="L127">        return url;</span>
     }
 
     public void setUrl(String url) {
-<span class="nc" id="L129">        this.url = url;</span>
-<span class="nc" id="L130">    }</span>
+<span class="nc" id="L131">        this.url = url;</span>
+<span class="nc" id="L132">    }</span>
 
     public String getHeader() {
-<span class="nc" id="L133">        return header;</span>
+<span class="nc" id="L135">        return header;</span>
     }
 
     public void setHeader(HttpHeaders header) {
-<span class="pc bpc" id="L137" title="1 of 2 branches missed.">        if(header == null){</span>
-<span class="nc" id="L138">            this.header = &quot;no header&quot;;</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        if(header == null){</span>
+<span class="nc" id="L140">            this.header = &quot;no header&quot;;</span>
         }else{
-<span class="fc" id="L140">            this.header = header.toString();</span>
+<span class="fc" id="L142">            this.header = header.toString();</span>
         }
-<span class="fc" id="L142">    }</span>
+<span class="fc" id="L144">    }</span>
     public void setHeader(String header){
-<span class="nc" id="L144">        this.header=header;</span>
-<span class="nc" id="L145">    }</span>
+<span class="nc" id="L146">        this.header=header;</span>
+<span class="nc" id="L147">    }</span>
 
     public int getDepth() {
-<span class="fc" id="L148">        return depth;</span>
+<span class="fc" id="L150">        return depth;</span>
     }
 
     public void setDepth(int depth) {
-<span class="nc" id="L152">        this.depth = depth;</span>
-<span class="nc" id="L153">    }</span>
+<span class="nc" id="L154">        this.depth = depth;</span>
+<span class="nc" id="L155">    }</span>
 
     public boolean isSuccessful() {
-<span class="nc" id="L156">        return successful;</span>
+<span class="nc" id="L158">        return successful;</span>
     }
 
     public void setSuccessful(boolean successful) {
-<span class="nc" id="L160">        this.successful = successful;</span>
-<span class="nc" id="L161">    }</span>
+<span class="nc" id="L162">        this.successful = successful;</span>
+<span class="nc" id="L163">    }</span>
 
     public int getTries() {
-<span class="fc" id="L164">        return tries;</span>
+<span class="fc" id="L166">        return tries;</span>
     }
 
     public void setTries(int tries) {
-<span class="fc" id="L168">        this.tries = tries;</span>
-<span class="fc" id="L169">    }</span>
+<span class="fc" id="L170">        this.tries = tries;</span>
+<span class="fc" id="L171">    }</span>
 
     public ConcurrentLinkedDeque&lt;WebNode&gt; getChildrenNodes() {
-<span class="fc" id="L172">        return childrenNodes;</span>
+<span class="fc" id="L174">        return childrenNodes;</span>
     }
 
 

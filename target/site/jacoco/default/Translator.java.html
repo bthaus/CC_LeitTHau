@@ -8,24 +8,24 @@ import java.util.concurrent.CompletableFuture;
 public class Translator implements Syncer{
     private final String language;
 
-<span class="nc" id="L11">    private String possibleErrorMessage = &quot;&quot;;</span>
+<span class="fc" id="L11">    private String possibleErrorMessage = &quot;&quot;;</span>
     private boolean running;
 
 
-<span class="nc" id="L15">    public Translator(String language) {</span>
-<span class="nc" id="L16">        this.language = language;</span>
+<span class="fc" id="L15">    public Translator(String language) {</span>
+<span class="fc" id="L16">        this.language = language;</span>
 
-<span class="nc" id="L18">    }</span>
+<span class="fc" id="L18">    }</span>
 
     public boolean checkForTranslationApiKey(){
-<span class="nc" id="L21">        return Configuration.doIHaveATranslationApiKey;</span>
+<span class="fc" id="L21">        return Configuration.doIHaveATranslationApiKey;</span>
     }
 
     public void deepTranslate(WebNode node){
-<span class="nc" id="L25">        translate(node);</span>
-<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (checkForTranslationApiKey()) {</span>
-<span class="nc bnc" id="L27" title="All 2 branches missed.">            for (WebNode child : node.getChildrenNodes()) {</span>
-<span class="nc bnc" id="L28" title="All 2 branches missed.">                if (!running) return;</span>
+<span class="fc" id="L25">        translate(node);</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">        if (checkForTranslationApiKey()) {</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">            for (WebNode child : node.getChildrenNodes()) {</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">                if (!running) return;</span>
 <span class="nc" id="L29">                deepTranslate(child);</span>
 <span class="nc" id="L30">                System.out.println(getFutures().size());</span>
 <span class="nc" id="L31">            }</span>
@@ -43,43 +43,44 @@ public class Translator implements Syncer{
      }*/
 
     public void translate(WebNode node){
-<span class="nc" id="L46">        JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(node.getHeader(),&quot;en&quot;, language);</span>
-<span class="nc" id="L47">        String bodyString = JsonHelper.getJsonString(body);</span>
+<span class="fc" id="L46">        JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(node.getHeader(),&quot;en&quot;, language);</span>
+<span class="fc" id="L47">        String bodyString = JsonHelper.getJsonString(body);</span>
 
-<span class="nc" id="L49">        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers(&quot;content-type&quot;,&quot;application/json&quot;,&quot;X-RapidAPI-Key&quot;, Configuration.TRANSLATION_API_KEY,&quot;X-RapidAPI-Host&quot;, Configuration.TRANSLATION_API_HOST).build();</span>
-<span class="nc" id="L50">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());</span>
-<span class="nc" id="L51">       offerFuture(response);</span>
+<span class="fc" id="L49">        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers(&quot;content-type&quot;,&quot;application/json&quot;,&quot;X-RapidAPI-Key&quot;, Configuration.TRANSLATION_API_KEY,&quot;X-RapidAPI-Host&quot;, Configuration.TRANSLATION_API_HOST).build();</span>
+<span class="fc" id="L50">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());</span>
+<span class="fc" id="L51">        offerFuture(response);</span>
 
-<span class="nc" id="L53">        response.thenAcceptAsync((res) -&gt; {</span>
-<span class="nc" id="L54">           removeFuture(response);</span>
-<span class="nc" id="L55">            String[] translation = res.body().split(&quot;translatedText\&quot;: \&quot;&quot;);</span>
-<span class="nc" id="L56">            possibleErrorMessage = translation[0];</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">            if (isFatal(res)) return;</span>
+<span class="fc" id="L53">        response.thenAcceptAsync((res) -&gt; {</span>
+<span class="fc" id="L54">           removeFuture(response);</span>
+<span class="fc" id="L55">           String[] translation = res.body().split(&quot;translatedText\&quot;: \&quot;&quot;);</span>
+<span class="fc" id="L56">           possibleErrorMessage = translation[0];</span>
 
-<span class="nc" id="L59">            node.setHeader(translation[1].substring(0, translation[1].lastIndexOf(&quot;\&quot;&quot;)));</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">           if (isFatal(res)) return;</span>
 
-<span class="nc" id="L61">        }).exceptionally((exception) -&gt; {</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (!getFutures().isEmpty()) {</span>
-<span class="nc" id="L63">                stop();</span>
-<span class="nc" id="L64">              killAllFutures();</span>
+<span class="nc" id="L60">           node.setHeader(translation[1].substring(0, translation[1].lastIndexOf(&quot;\&quot;&quot;)));</span>
+
+<span class="pc" id="L62">        }).exceptionally((exception) -&gt; {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">            if (!getFutures().isEmpty()) {</span>
+<span class="nc" id="L64">                stop();</span>
+<span class="nc" id="L65">                killAllFutures();</span>
             }
-<span class="nc" id="L66">            return null;</span>
-<span class="nc" id="L67">        }).join();</span>
+<span class="nc" id="L67">            return null;</span>
+<span class="fc" id="L68">        }).join();</span>
 
-<span class="nc" id="L69">    }</span>
+<span class="fc" id="L70">    }</span>
 
     private void stop(){
-<span class="nc" id="L72">        this.running=false;</span>
-<span class="nc" id="L73">    }</span>
+<span class="fc" id="L73">        this.running=false;</span>
+<span class="fc" id="L74">    }</span>
 
     private boolean isFatal(HttpResponse&lt;String&gt; res){
-<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (res.statusCode() &gt; 299){</span>
-<span class="nc" id="L77">            System.out.println(possibleErrorMessage);</span>
-<span class="nc" id="L78">            stop();</span>
-<span class="nc" id="L79">           killAllFutures();</span>
-<span class="nc" id="L80">            return true;</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">        if (res.statusCode() &gt; Configuration.LOWEST_FATAL_STATUS_CODE){</span>
+<span class="fc" id="L78">            System.out.println(possibleErrorMessage);</span>
+<span class="fc" id="L79">            stop();</span>
+<span class="fc" id="L80">            killAllFutures();</span>
+<span class="fc" id="L81">            return true;</span>
         }
-<span class="nc" id="L82">        return false;</span>
+<span class="nc" id="L83">        return false;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

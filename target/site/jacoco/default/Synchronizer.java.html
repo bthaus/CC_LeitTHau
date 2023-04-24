@@ -5,50 +5,50 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 <span class="fc" id="L5">public class Synchronizer {</span>
 <span class="fc" id="L6">    private ConcurrentLinkedDeque&lt;CompletableFuture&lt;HttpResponse&lt;String&gt;&gt;&gt; futures = new ConcurrentLinkedDeque&lt;&gt;();</span>
 
-    public void offerFuture(CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; future){
-<span class="fc" id="L9">        getFutures().offer(future);</span>
-<span class="fc" id="L10">    }</span>
-
-    public void removeFuture(CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; f) {
-<span class="fc" id="L13">        getFutures().remove(f);</span>
-<span class="fc" id="L14">    }</span>
-
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
         //every second it is checked if no further requests are called
-<span class="fc" id="L19">        int keepAlive = 0;</span>
-<span class="fc" id="L20">        int temp = 0;</span>
-<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        while (getFutures().size() &gt; 0) {</span>
+<span class="fc" id="L11">        int keepAlive = 0;</span>
+<span class="fc" id="L12">        int temp = 0;</span>
+<span class="fc bfc" id="L13" title="All 2 branches covered.">        while (getFutures().size() &gt; 0) {</span>
             try {
-<span class="fc" id="L23">                Thread.sleep(1000);</span>
+<span class="fc" id="L15">                Thread.sleep(1000);</span>
 
-<span class="fc bfc" id="L25" title="All 2 branches covered.">                if (temp == getFutures().size()) {</span>
-<span class="fc" id="L26">                    keepAlive++;</span>
+<span class="fc bfc" id="L17" title="All 2 branches covered.">                if (temp == getFutures().size()) {</span>
+<span class="fc" id="L18">                    keepAlive++;</span>
                 } else {
-<span class="fc" id="L28">                    keepAlive = 0;</span>
+<span class="fc" id="L20">                    keepAlive = 0;</span>
                 }
 
-<span class="fc" id="L31">                temp = getFutures().size();</span>
+<span class="fc" id="L23">                temp = getFutures().size();</span>
 
                 //if for timeout seconds no request is added or removed all requests are cancelled
-<span class="fc bfc" id="L34" title="All 2 branches covered.">                if (keepAlive &gt; Configuration.CLIENT_TIMEOUT_IN_SECONDS) {</span>
-<span class="fc" id="L35">                    System.out.println(&quot;remaining requests cancelled due to timeout&quot;);</span>
-<span class="fc" id="L36">                    killAllFutures();</span>
-<span class="fc" id="L37">                    break;</span>
+<span class="fc bfc" id="L26" title="All 2 branches covered.">                if (keepAlive &gt; Configuration.CLIENT_TIMEOUT_IN_SECONDS) {</span>
+<span class="fc" id="L27">                    System.out.println(&quot;remaining requests cancelled due to timeout&quot;);</span>
+<span class="fc" id="L28">                    killAllFutures();</span>
+<span class="fc" id="L29">                    break;</span>
                 }
-<span class="fc" id="L39">                System.out.println(getFutures().size() + &quot; requests active&quot; );</span>
-<span class="nc" id="L40">            } catch (InterruptedException e) {</span>
-<span class="nc" id="L41">                e.printStackTrace();</span>
-<span class="pc" id="L42">            }</span>
+<span class="fc" id="L31">                System.out.println(getFutures().size() + &quot; requests active&quot; );</span>
+<span class="nc" id="L32">            } catch (InterruptedException e) {</span>
+<span class="nc" id="L33">                e.printStackTrace();</span>
+<span class="pc" id="L34">            }</span>
         }
         //technically not neccessary but for peace of mind
-<span class="fc" id="L45">        killAllFutures();</span>
-<span class="fc" id="L46">    }</span>
+<span class="fc" id="L37">        killAllFutures();</span>
+<span class="fc" id="L38">    }</span>
     public void killAllFutures() {
         //cancelling all requests that fell under unexpected error cases
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        while (futures.size() &gt; 0) {</span>
-<span class="fc" id="L50">            futures.pop().cancel(true);</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        while (futures.size() &gt; 0) {</span>
+<span class="fc" id="L42">            futures.pop().cancel(true);</span>
         }
+<span class="fc" id="L44">    }</span>
+
+    public void offerFuture(CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; future){
+<span class="fc" id="L47">        getFutures().offer(future);</span>
+<span class="fc" id="L48">    }</span>
+
+    public void removeFuture(CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; f) {
+<span class="fc" id="L51">        getFutures().remove(f);</span>
 <span class="fc" id="L52">    }</span>
 
     public ConcurrentLinkedDeque&lt;CompletableFuture&lt;HttpResponse&lt;String&gt;&gt;&gt; getFutures() {

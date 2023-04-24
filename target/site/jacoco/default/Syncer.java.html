@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 
 public interface Syncer {
     //wrapper interface. technically i could move all methods from synchronizer in here and make them default, but i want the option to still use the synchronizer class, even if this might cause some extra maintenance work
-<span class="fc" id="L7">    public Synchronizer synchronizer=new Synchronizer();</span>
+<span class="fc" id="L7">    Synchronizer synchronizer = new Synchronizer();</span>
     default void waitForRequests(){
 <span class="fc" id="L9">        synchronizer.waitForAllRequests();</span>
 <span class="fc" id="L10">    }</span>
