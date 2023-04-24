@@ -19,11 +19,11 @@ public class WebNode implements Syncer {
     public final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     public final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
 
-    public WebNode( String url, int depth, boolean success)  {
+    public WebNode(String url, int depth, boolean success)  {
         this.url = url;
         this.depth = depth;
         this.successful = success;
-        setTries(1);
+        tries = 1;
     }
 
     //auxiliary constructor for mockdata
@@ -33,18 +33,19 @@ public class WebNode implements Syncer {
 
 
     public void crawl() {
-        if (checkBaseCases()){      //TODO check bodos notes
+        if (isBaseCase()){      //TODO check bodos notes
             return;
         }
-
-        //saving already crawled urls
-        urlList.offer(url);
 
         //creating request
         CompletableFuture<HttpResponse<String>> response = createRequest();
 
+        //saving already crawled urls
+        urlList.offer(url);
+
         // saving away all future-objects for synchronization
         offerFuture(response);
+
 
         //asynchronously handle response
         response.thenAcceptAsync((res) -> {
@@ -97,7 +98,7 @@ public class WebNode implements Syncer {
         return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
     }
 
-    public boolean checkBaseCases() {
+    public boolean isBaseCase() {
         //guard clauses
         //first recursion base case
         if (depth == 0) {
@@ -109,7 +110,8 @@ public class WebNode implements Syncer {
             urlList.offer(url);
             return true;
         }
-        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url. so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
+        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
         if ((urlList.contains(url) && tries == 1) || (errorUrls.contains(url))) {
             return true;
         }

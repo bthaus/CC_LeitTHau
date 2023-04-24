@@ -48,20 +48,21 @@ public class Translator implements Syncer{
 
         HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key", Configuration.TRANSLATION_API_KEY,"X-RapidAPI-Host", Configuration.TRANSLATION_API_HOST).build();
         CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
-       offerFuture(response);
+        offerFuture(response);
 
         response.thenAcceptAsync((res) -> {
            removeFuture(response);
-            String[] translation = res.body().split("translatedText\": \"");
-            possibleErrorMessage = translation[0];
-            if (isFatal(res)) return;
+           String[] translation = res.body().split("translatedText\": \"");
+           possibleErrorMessage = translation[0];
 
-            node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
+           if (isFatal(res)) return;
+
+           node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
 
         }).exceptionally((exception) -> {
             if (!getFutures().isEmpty()) {
                 stop();
-              killAllFutures();
+                killAllFutures();
             }
             return null;
         }).join();
@@ -73,7 +74,7 @@ public class Translator implements Syncer{
     }
 
     private boolean isFatal(HttpResponse<String> res){
-        if (res.statusCode() > 299){
+        if (res.statusCode() > Configuration.LOWEST_FATAL_STATUS_CODE){
             System.out.println(possibleErrorMessage);
             stop();
            killAllFutures();

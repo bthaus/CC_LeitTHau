@@ -5,8 +5,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -28,21 +26,21 @@ public class WebNodeTest {
     @Test
     public void checkIsBaseCaseFirstRecursionTest(){
         webNode = new WebNode("url", 0, true);
-        assertTrue(webNode.checkBaseCases());
+        assertTrue(webNode.isBaseCase());
     }
     @Test
     public void checkIsBaseCaseTriesTest(){
         webNode = new WebNode("url", 1, true);
         webNode.setTries(Configuration.getMaxCrawlDepth()+1);
 
-        //TODO assertTrue(webNode.checkBaseCases());
+        //TODO assertTrue(webNode.isBaseCase());
     }
     @Test
     public void checkIsBaseCaseAlreadyCrawledTest(){
         webNode = new WebNode("url", 1, true);
         WebNode.urlList.add("url");
 
-        assertTrue(webNode.checkBaseCases());
+        assertTrue(webNode.isBaseCase());
         WebNode.urlList.remove("url");
     }
 

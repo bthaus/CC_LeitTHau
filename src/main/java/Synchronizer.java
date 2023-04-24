@@ -5,14 +5,6 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
 
-    public void offerFuture(CompletableFuture<HttpResponse<String>> future){
-        getFutures().offer(future);
-    }
-
-    public void removeFuture(CompletableFuture<HttpResponse<String>> f) {
-        getFutures().remove(f);
-    }
-
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
         //every second it is checked if no further requests are called
@@ -49,6 +41,14 @@ public class Synchronizer {
         while (futures.size() > 0) {
             futures.pop().cancel(true);
         }
+    }
+
+    public void offerFuture(CompletableFuture<HttpResponse<String>> future){
+        getFutures().offer(future);
+    }
+
+    public void removeFuture(CompletableFuture<HttpResponse<String>> f) {
+        getFutures().remove(f);
     }
 
     public ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> getFutures() {
