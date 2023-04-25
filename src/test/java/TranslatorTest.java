@@ -1,4 +1,3 @@
-import org.checkerframework.checker.signature.qual.DotSeparatedIdentifiersOrPrimitiveType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -24,7 +23,6 @@ public class TranslatorTest {
     public void setUo(){
         translator = new Translator("DE");
         openMocks(this);
-
 
         childrenNodes = new ConcurrentLinkedDeque<>();
 
@@ -58,5 +56,13 @@ public class TranslatorTest {
     public void translateTest(){
         translator.translate(webNodeMock);
         verify(webNodeMock, times(1)).getHeader();
+    }
+
+    @Test
+    public void translateHeaderTest() {
+        WebNode data=new WebNode("test header with testvalue");
+        Translator headerTranslator = new Translator("de");
+        headerTranslator.translate(data);
+        assertEquals("Testheader mit Testwert", data.getHeader());
     }
 }

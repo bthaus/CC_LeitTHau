@@ -11,7 +11,6 @@ public class Translator implements Syncer{
     private String possibleErrorMessage = "";
     private boolean running;
 
-
     public Translator(String language) {
         this.language = language;
 
@@ -48,11 +47,11 @@ public class Translator implements Syncer{
         String bodyString = JsonHelper.getJsonString(body);
 
         HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key", Configuration.TRANSLATION_API_KEY,"X-RapidAPI-Host", Configuration.TRANSLATION_API_HOST).build();
-        CompletableFuture<HttpResponse<String>> response = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
-        offerFuture(response);
+        CompletableFuture<HttpResponse<String>> future = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
+        offerFuture(future);
 
-        response.thenAcceptAsync((res) -> {
-           removeFuture(response);
+        future.thenAcceptAsync((res) -> {
+           removeFuture(future);
            String[] translation = res.body().split("translatedText\": \"");
            possibleErrorMessage = translation[0];
 
@@ -62,6 +61,7 @@ public class Translator implements Syncer{
 
         }).exceptionally((exception) -> {
             if (!getFutures().isEmpty()) {
+                System.out.println(possibleErrorMessage);
                 stop();
                 killAllFutures();
             }

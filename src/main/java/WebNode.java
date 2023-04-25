@@ -33,9 +33,7 @@ public class WebNode implements Syncer {
 
 
     public void crawl() {
-        if (isBaseCase()){      //TODO check bodos notes
-            return;
-        }
+        if (isBaseCase()) return;
 
         //creating request
         CompletableFuture<HttpResponse<String>> response = createRequest();
@@ -121,14 +119,10 @@ public class WebNode implements Syncer {
 
 
     /**
-     * Getter and Setter methods TODO remove methods not needed from outside -
+     * Getter and Setter methods
      */
     public String getUrl() {
         return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
     }
 
     public String getHeader() {
@@ -136,9 +130,9 @@ public class WebNode implements Syncer {
     }
 
     public void setHeader(HttpHeaders header) {
-        if(header == null){
+        if (header == null) {
             this.header = "no header";
-        }else{
+        } else {
             this.header = header.toString();
         }
     }
@@ -150,16 +144,8 @@ public class WebNode implements Syncer {
         return depth;
     }
 
-    public void setDepth(int depth) {
-        this.depth = depth;
-    }
-
     public boolean isSuccessful() {
         return successful;
-    }
-
-    public void setSuccessful(boolean successful) {
-        this.successful = successful;
     }
 
     public int getTries() {
@@ -173,10 +159,5 @@ public class WebNode implements Syncer {
     public ConcurrentLinkedDeque<WebNode> getChildrenNodes() {
         return childrenNodes;
     }
-
-
-
-
-
 
 }

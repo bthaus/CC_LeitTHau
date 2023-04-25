@@ -21,8 +21,3 @@ public class Main {
     }
 }
 
-/** todo things cc still got to do
- * test cases
- * read.me file
- */
-

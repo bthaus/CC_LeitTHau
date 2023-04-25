@@ -2,11 +2,8 @@ import org.junit.Before;
 
 import org.junit.Test;
 import org.mockito.*;
-import org.mockito.internal.matchers.Null;
 
 import java.io.*;
-import java.nio.file.InvalidPathException;
-import java.nio.file.Paths;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 import static org.junit.Assert.*;
@@ -24,7 +21,6 @@ public class MarkdownFactoryTest {
     public int depth;
     public String defaultHeader = "I am a leaf and hence have no header";
     public ConcurrentLinkedDeque<WebNode> childrenNodes;
-
 
     @Before
     public void init(){
@@ -51,6 +47,7 @@ public class MarkdownFactoryTest {
         String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
         assertEquals(expected, markdownFactory.getFormat(webNodeMock));
     }
+
     @Test
     public void getFormatVerifyTest(){
         markdownFactory.getFormat(webNodeMock);
@@ -65,7 +62,6 @@ public class MarkdownFactoryTest {
 
     @Test
     public void getMarkdownStringVerifyTest(){
-        //System.out.println(markdownFactory.getMarkdownString(webNodeMock));
         String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
         assertEquals(expected, markdownFactory.getMarkdownString(webNodeMock).toString());
     }
@@ -94,28 +90,5 @@ public class MarkdownFactoryTest {
             markdownFactory.createMarkdownFile(webNodeMock);
         });
     }
-
-    //todo fix or delete
-    /*@Test
-    public void checkCreatedMarkdownFileWithChildren(){
-        childrenNodes.offer(webNodeMock);
-        when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
-        markdownFactory.createMarkdownFile(webNodeMock);
-
-
-        String filePath = markdownFactory.path.toString();
-        String markdownFileContent = "";
-        try {
-            FileReader fileReader = new FileReader(filePath);
-            BufferedReader bufferedReader = new BufferedReader(fileReader);
-            markdownFileContent += bufferedReader.readLine();
-            bufferedReader.close();
-            fileReader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        assertEquals("## ---> **** <br>", markdownFileContent);
-    }*/
 
 }
