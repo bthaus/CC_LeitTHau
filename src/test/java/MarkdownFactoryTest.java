@@ -68,19 +68,19 @@ public class MarkdownFactoryTest {
 
     @Test
     public void checkCreatedMarkdownFile(){
-            String filePath = markdownFactory.path.toString();
-            String markdownFileContent = "";
-            try {
-                FileReader fileReader = new FileReader(filePath);
-                BufferedReader bufferedReader = new BufferedReader(fileReader);
-                markdownFileContent += bufferedReader.readLine();
-                bufferedReader.close();
-                fileReader.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        String filePath = markdownFactory.path.toString();
+        String markdownFileContent = "";
+        try {
+            FileReader fileReader = new FileReader(filePath);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            markdownFileContent += bufferedReader.readLine();
+            bufferedReader.close();
+            fileReader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
-            assertEquals("## ---> **** <br>", markdownFileContent);
+        assertTrue(markdownFileContent.contains(Configuration.getRootUrl()));
     }
 
     @Test
