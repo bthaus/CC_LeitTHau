@@ -14,7 +14,7 @@ public class MarkdownFactory {
             System.out.println("Invalid Path");
         }
 
-        //todo deleta debug help
+        //for debugging and checks
         System.out.println(Configuration.successes + " successes");
         System.out.println(Configuration.failures + " failures");
     }
@@ -26,7 +26,7 @@ public class MarkdownFactory {
         for (WebNode child : node.getChildrenNodes()){
             markdownString.append(getMarkdownString(child));
 
-            //todo debug feature delete
+            //for debugging and checks
             if (child.isSuccessful()) Configuration.successes++;
             else Configuration.failures++;
         }

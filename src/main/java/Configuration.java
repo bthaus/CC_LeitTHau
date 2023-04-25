@@ -16,7 +16,7 @@ public class Configuration {
     public static final int LOWEST_FATAL_STATUS_CODE = 299;
 
 
-    //TODO delete debug feature
+    //for debugging and checks
     public static int successes = 0;
     public static int failures = 0;
 

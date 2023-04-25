@@ -1,13 +1,7 @@
-import org.checkerframework.checker.units.qual.A;
 import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mock;
-
-
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 public class WebNodeTest {
 
@@ -17,6 +11,7 @@ public class WebNodeTest {
     public void cleanUp(){
         webNode = null;
     }
+
     @Test
     public void constructorTest(){
         webNode = new WebNode("url", 2, true);
@@ -28,13 +23,7 @@ public class WebNodeTest {
         webNode = new WebNode("url", 0, true);
         assertTrue(webNode.isBaseCase());
     }
-    @Test
-    public void checkIsBaseCaseTriesTest(){
-        webNode = new WebNode("url", 1, true);
-        webNode.setTries(Configuration.getMaxCrawlDepth()+1);
 
-        //TODO assertTrue(webNode.isBaseCase());
-    }
     @Test
     public void checkIsBaseCaseAlreadyCrawledTest(){
         webNode = new WebNode("url", 1, true);
@@ -56,16 +45,8 @@ public class WebNodeTest {
 
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
-
-
-       //test
-        //1: if the number of Children increases
-        //2: if Depth increases
-        //3: if headers are put into it
-
-        //ALSO NOTE THE THOUGHT PROCESS SEE BODO CHAT
-
     }
+
     @Test
     public void crawlFacebookTest(){
         webNode = new WebNode("https://www.facebook.com/", 2, true);
@@ -77,6 +58,7 @@ public class WebNodeTest {
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
 
     }
+
     @Test
     public void crawlWikipediaTest(){
         webNode = new WebNode("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite", 2, true);
