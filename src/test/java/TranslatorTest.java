@@ -38,7 +38,6 @@ public class TranslatorTest {
         childrenNodes.offer(webNodeMock);
         translator.deepTranslate(webNodeMock);
         verify(webNodeMock, times(1)).getChildrenNodes();
-
     }
 
     @Test
@@ -49,7 +48,6 @@ public class TranslatorTest {
         childrenNodes.offer(webNodeMock);
         translator.deepTranslate(webNodeMock);
         verify(webNodeMock, times(1)).getChildrenNodes();
-
     }
 
     @Test
