@@ -1,0 +1,5 @@
+tests.class
+MarkdownFactoryTest.class
+SynchronizerTest.class
+TranslatorTest.class
+WebNodeTest.class

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class JsonHelper{
 
     public static TranslationRequestBody getTranslationRequestBody(String header, String sourceLanguage, String targetLanguage){
-        return new TranslationRequestBody(header, sourceLanguage, targetLanguage);
+        return new TranslationRequestBody (header, sourceLanguage, targetLanguage);
     }
 
     public static String getJsonString(Object o){

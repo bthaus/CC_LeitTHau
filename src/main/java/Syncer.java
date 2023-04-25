@@ -3,8 +3,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public interface Syncer {
-    //wrapper interface. technically i could move all methods from synchronizer in here and make them default, but i want the option to still use the synchronizer class, even if this might cause some extra maintenance work
-    public Synchronizer synchronizer=new Synchronizer();
+    //wrapper interface. technically i could move all methods from synchronizer in here and make them default,
+    // but i want the option to still use the synchronizer class, even if this might cause some extra maintenance work
+    Synchronizer synchronizer = new Synchronizer();
     default void waitForRequests(){
         synchronizer.waitForAllRequests();
     }

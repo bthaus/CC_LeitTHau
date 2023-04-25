@@ -5,27 +5,28 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MarkdownFactory {
+    public Path path = Paths.get("src/main/resources/markdown.md");
 
     public void createMarkdownFile(WebNode root){
-        Path path = Paths.get("src/main/resources/markdown.md");
-
         try {
             Files.writeString(path, getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
-            System.out.print("Invalid Path");
+            System.out.println("Invalid Path");
         }
 
+        //for debugging and checks
         System.out.println(Configuration.successes + " successes");
         System.out.println(Configuration.failures + " failures");
     }
 
     public StringBuilder getMarkdownString(WebNode node){
         StringBuilder markdownString = new StringBuilder();
-            markdownString.append(getFormat(node));
+        markdownString.append(getFormat(node));
+
         for (WebNode child : node.getChildrenNodes()){
             markdownString.append(getMarkdownString(child));
 
-            //TODO debug feature delete
+            //for debugging and checks
             if (child.isSuccessful()) Configuration.successes++;
             else Configuration.failures++;
         }
@@ -37,9 +38,9 @@ public class MarkdownFactory {
         formattedLine = concatNElements(formattedLine,"#", Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(" ");
         formattedLine = concatNElements(formattedLine,"-", Configuration.getMaxCrawlDepth()-node.getDepth());
 
-        if   (node.isSuccessful()){
+        if (node.isSuccessful()){
             formattedLine = formattedLine.concat("> **" + node.getUrl() + "** <br>\n");
-        }else{
+        } else{
             formattedLine = formattedLine.concat("> *" + node.getUrl() + "* <br>\n");
         }
         formattedLine = formattedLine.concat(node.getHeader() + "\n");

@@ -3,12 +3,11 @@ public class Main {
     public static MarkdownFactory markdownFactory;
     public static Translator translator;
 
-
-    public static void main(String[] args) {
+    public static void main (String[] args) {
         Configuration.setMaxCrawlDepth(Integer.parseInt(args[1]));
+        Configuration.setRootUrl(args[0]);
 
-
-        root = new WebNode( args[0], Configuration.getMaxCrawlDepth(),true);
+        root = new WebNode(Configuration.getRootUrl(), Configuration.getMaxCrawlDepth(),true);
         markdownFactory = new MarkdownFactory();
         translator = new Translator(args[2]);
 
@@ -21,9 +20,4 @@ public class Main {
         markdownFactory.createMarkdownFile(root);
     }
 }
-
-/** todo things cc still got to do
- * test cases
- * read.me file
- */
 
