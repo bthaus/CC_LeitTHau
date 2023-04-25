@@ -7,3 +7,4 @@ To build and run, edit the run configurations and add the website you want to cr
 Seperate them by space. (e.g. https://www.bodofoto.at/ 3 DE)
 
 Translator API used: 
+Google Translator via rapidapi.com
