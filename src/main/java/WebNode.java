@@ -108,8 +108,8 @@ public class WebNode implements Syncer {
             urlList.offer(url);
             return true;
         }
-        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
-        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+        //don't crawl the same page twice. if urlList contains the url it must be try 2, otherwise it would be a recall of the same url.
+        //so if the first appearance of a link failed it has to be inside errorUlrs to be returned, which it only is if it has been crawled 3 times
         if ((urlList.contains(url) && tries == 1) || (errorUrls.contains(url))) {
             return true;
         }
@@ -117,9 +117,8 @@ public class WebNode implements Syncer {
     }
 
 
-
     /**
-     * Getter and Setter methods
+     * Getter and Setter
      */
     public String getUrl() {
         return url;
@@ -150,10 +149,6 @@ public class WebNode implements Syncer {
 
     public int getTries() {
         return tries;
-    }
-
-    public void setTries(int tries) {
-        this.tries = tries;
     }
 
     public ConcurrentLinkedDeque<WebNode> getChildrenNodes() {

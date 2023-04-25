@@ -34,7 +34,7 @@ public class WebNodeTest {
     }
 
     //Crawl is testet with google, facebook and wikipedia. if all of these tests go wrong, we can assume,
-    // it's the webscrawlers fault as it is very unlikely that all these 3 sites are down
+    // it's the websCrawler's fault as it is very unlikely that all these 3 sites are down
     @Test
     public void crawlGoogleTest(){
         webNode = new WebNode("https://www.google.at", 2, true);
@@ -42,7 +42,6 @@ public class WebNodeTest {
 
         webNode.crawl();
         webNode.waitForRequests();
-
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
     }
@@ -56,7 +55,6 @@ public class WebNodeTest {
         webNode.waitForRequests();
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
-
     }
 
     @Test

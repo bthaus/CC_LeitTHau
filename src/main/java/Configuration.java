@@ -1,4 +1,3 @@
-import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Configuration {
     //translation data
@@ -16,7 +15,7 @@ public class Configuration {
     public static final int LOWEST_FATAL_STATUS_CODE = 299;
 
 
-    //for debugging and checks
+    //for debugging and log
     public static int successes = 0;
     public static int failures = 0;
 

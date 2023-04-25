@@ -86,9 +86,6 @@ public class MarkdownFactoryTest {
     @Test
     public void createMarkdownFileNoPathTest(){
         markdownFactory.path =  null;
-        assertThrows(NullPointerException.class, () -> {
-            markdownFactory.createMarkdownFile(webNodeMock);
-        });
+        assertThrows(NullPointerException.class, () -> markdownFactory.createMarkdownFile(webNodeMock));
     }
-
 }

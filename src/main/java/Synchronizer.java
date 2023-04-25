@@ -6,7 +6,7 @@ public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
 
     public void waitForAllRequests(){
-        //as this is no operating systems course i handeled joining for threads quite liberally.
+        //as this is no operating systems course i handled joining for threads quite liberally.
         //every second it is checked if no further requests are called
         int keepAlive = 0;
         int temp = 0;
@@ -33,7 +33,7 @@ public class Synchronizer {
                 e.printStackTrace();
             }
         }
-        //technically not neccessary but for peace of mind
+        //technically not necessary but for peace of mind
         killAllFutures();
     }
     public void killAllFutures() {
