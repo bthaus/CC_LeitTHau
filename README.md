@@ -8,3 +8,12 @@ Seperate them by space. (e.g. https://www.bodofoto.at/ 3 DE)
 
 Translator API used: 
 Google Translator via rapidapi.com
+
+Package manager used:
+Maven
+
+Dependencies:
+Jackson-Databind
+Jacoco
+Mockito core
+Junit
