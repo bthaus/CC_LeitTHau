@@ -14,19 +14,19 @@ public class WebNodeTest {
 
     @Test
     public void constructorTest(){
-        webNode = new WebNode("url", 2, true);
+        webNode = new WebNode("url", 2);
         assertEquals(webNode.getTries(), 1);
     }
 
     @Test
     public void checkIsBaseCaseFirstRecursionTest(){
-        webNode = new WebNode("url", 0, true);
+        webNode = new WebNode("url", 0);
         assertTrue(webNode.isBaseCase());
     }
 
     @Test
     public void checkIsBaseCaseAlreadyCrawledTest(){
-        webNode = new WebNode("url", 1, true);
+        webNode = new WebNode("url", 1);
         WebNode.urlList.add("url");
 
         assertTrue(webNode.isBaseCase());
@@ -37,11 +37,12 @@ public class WebNodeTest {
     // it's the webscrawlers fault as it is very unlikely that all these 3 sites are down
     @Test
     public void crawlGoogleTest(){
-        webNode = new WebNode("https://www.google.at", 2, true);
+        webNode = new WebNode("https://www.google.at", 2);
         int comparisonValue = webNode.getChildrenNodes().size();
 
+        //new as seen in main
         webNode.crawl();
-        webNode.waitForRequests();
+      //  webNode.waitForRequests();
 
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
@@ -49,11 +50,11 @@ public class WebNodeTest {
 
     @Test
     public void crawlFacebookTest(){
-        webNode = new WebNode("https://www.facebook.com/", 2, true);
+        webNode = new WebNode("https://www.facebook.com/", 2);
         int comparisonValue = webNode.getChildrenNodes().size();
 
         webNode.crawl();
-        webNode.waitForRequests();
+      //  webNode.waitForRequests();
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
 
@@ -61,18 +62,18 @@ public class WebNodeTest {
 
     @Test
     public void crawlWikipediaTest(){
-        webNode = new WebNode("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite", 2, true);
+        webNode = new WebNode("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite", 2);
         int comparisonValue = webNode.getChildrenNodes().size();
 
         webNode.crawl();
-        webNode.waitForRequests();
+       // webNode.waitForRequests();
 
         assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
     }
 
     @Test
     public void createRequestExceptionTest(){
-        webNode = new WebNode("", 1, true);
+        webNode = new WebNode("", 1);
 
         assertThrows(IllegalArgumentException.class, () -> {
             webNode.createRequest();

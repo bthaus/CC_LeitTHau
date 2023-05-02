@@ -4,34 +4,63 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 
-public class WebNode implements Syncer {
-    private String url;
+public class WebNode {
+    private final String url;
     private String header = "I am a leaf and hence have no header";
-    private int depth;
-    private boolean successful;
+    private final int depth;
+    private boolean successful=true;
     private int tries;
+
+    private static LinkedList<WebNode> rootNodes=new LinkedList<>();
+
+    private Synchronizer synchronizer=new Synchronizer();
+    private Thread rootThread;
+    private Callback callback;
+    private Task task;
+
 
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
     public final static ConcurrentLinkedDeque<String> urlList = new ConcurrentLinkedDeque<>();
     public final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
 
-    public WebNode(String url, int depth, boolean success)  {
+
+
+    public WebNode(String url, int depth)  {
         this.url = url;
         this.depth = depth;
-        this.successful = success;
+
         tries = 1;
+        synchronizer.setIntervalMessage(" origin: "+url);
+        this.task= this::crawl;
+
     }
 
-    //auxiliary constructor for mockdata
-    public WebNode(String header){
-        this.header = header;
+
+    public void startNonBlocking(Callback callback){
+        this.callback=callback;
+       rootThread= synchronizer.createBlockedTask(task,callback);
+       rootNodes.push(this);
+       rootThread.start();
+
     }
-
-
+    public void join(){
+        try {
+            rootThread.join();
+        } catch (InterruptedException e) {
+            callback.onError(e);
+        }
+    }
+    public static void joinAll(){
+        for (WebNode node:rootNodes
+             ) {
+            node.join();
+        }
+    }
     public void crawl() {
         if (isBaseCase()) return;
 
@@ -42,14 +71,14 @@ public class WebNode implements Syncer {
         urlList.offer(url);
 
         // saving away all future-objects for synchronization
-        offerFuture(response);
+        synchronizer.offerFuture(response);
 
 
         //asynchronously handle response
         response.thenAcceptAsync((res) -> {
             setHeader(res.headers());
             //removing future from active requests
-            removeFuture(response);
+            synchronizer.removeFuture(response);
 
             //parsing body
             String hrefs[] = res.body().split("href=\"");
@@ -66,8 +95,9 @@ public class WebNode implements Syncer {
 
                 //checking for validity and recursively calling crawl
                 if (linkSnipped.contains("https://") || linkSnipped.contains("http://")) {
-                    WebNode child = new WebNode( linkSnipped, getDepth()-1, true);
+                    WebNode child = new WebNode( linkSnipped, getDepth()-1);
                     childrenNodes.offer(child);
+                    child.synchronizer=this.synchronizer;
                     child.crawl();
 
                 }
@@ -76,7 +106,7 @@ public class WebNode implements Syncer {
         }).exceptionally((exception) -> {
 
             //removing request from active requests as its done
-           removeFuture(response);
+           synchronizer.removeFuture(response);
 
             //recursively calling crawl
             tries++;
@@ -104,8 +134,10 @@ public class WebNode implements Syncer {
         }
         //second recursion base case
         if(tries > Configuration.MAX_TRIES){
-            childrenNodes.offer(new WebNode(url, depth, false));
-            urlList.offer(url);
+            errorUrls.offer(url);
+            successful=false;
+            //childrenNodes.offer(new WebNode(url, depth, false));
+            //urlList.offer(url);
             return true;
         }
         //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
@@ -160,4 +192,7 @@ public class WebNode implements Syncer {
         return childrenNodes;
     }
 
+    public String getName() {
+        return url.substring(url.indexOf("www."));
+    }
 }

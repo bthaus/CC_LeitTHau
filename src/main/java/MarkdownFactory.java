@@ -5,9 +5,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class MarkdownFactory {
-    public Path path = Paths.get("src/main/resources/markdown.md");
+    public Path path;
 
-    public void createMarkdownFile(WebNode root){
+    public void createMarkdownFile(WebNode root, String name){
+        path = Paths.get("src/main/resources/"+name+".md");
         try {
             Files.writeString(path, getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
