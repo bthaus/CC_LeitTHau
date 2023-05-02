@@ -25,7 +25,7 @@ public class Main {
                     Translator.translate(node, args[2],new Callback(){
                         @Override
                         public void onComplete() {
-                            markdownFactory.createMarkdownFile(node, "gmx");
+                            markdownFactory.createMarkdownFile(node);
                         }
 
                         @Override
@@ -52,7 +52,7 @@ public class Main {
         Synchronizer.joinAll();
         for (WebNode node:nodes
              ) {
-        markdownFactory.createMarkdownFile(node, node.getName());
+        markdownFactory.createMarkdownFile(node);
         }
 
     }
