@@ -29,7 +29,7 @@ public class Translator {
 
     static Translator translate(WebNode webnode, String language, Callback callback){
         Translator translator=new Translator(webnode,language);
-        translator.start(callback);
+        translator.startNonBlocking(callback);
         translators.push(translator);
         return translator;
     }
@@ -65,7 +65,7 @@ public class Translator {
      }
      ]
      }*/
-    public void start(Callback callback){
+    public void startNonBlocking(Callback callback){
         this.callback=callback;
        this.thread=synchronizer.createBlockedTask(task,callback);
        this.thread.start();
