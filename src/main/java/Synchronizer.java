@@ -1,10 +1,48 @@
 import java.net.http.HttpResponse;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
+    private String message="";
+    private Thread thread;
+    private Callback callback;
+    private static ConcurrentLinkedDeque<Synchronizer> blockingSynchronizers=new ConcurrentLinkedDeque<>();
+  
+    
+    public static void joinAll(){
+        System.out.println(blockingSynchronizers.size());
+            for (Synchronizer s: blockingSynchronizers
+                 ) {
+                try {
+                    System.out.println(s.message);
+                    s.thread.join();
 
+                } catch (InterruptedException e) {
+                    s.callback.onError(e);
+                }
+            }
+            blockingSynchronizers.clear();
+
+    }
+
+    public  Thread createBlockedTask(Task task, Callback callback){
+        this.thread= new Thread(() -> {
+            try {
+                task.execute();
+                waitForAllRequests();
+            } catch (Exception e) {
+                callback.onError(e);
+            }
+            callback.onComplete();
+        });
+
+     this.callback=callback;
+     blockingSynchronizers.offer(this);
+     return thread;
+        
+    }
     public void waitForAllRequests(){
         //as this is no operating systems course i handled joining for threads quite liberally.
         //every second it is checked if no further requests are called
@@ -28,7 +66,7 @@ public class Synchronizer {
                     killAllFutures();
                     break;
                 }
-                System.out.println(getFutures().size() + " requests active" );
+                System.out.println(getFutures().size() + " requests active " +message);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -57,5 +95,9 @@ public class Synchronizer {
 
     public void setFutures(ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures) {
         this.futures = futures;
+    }
+
+    public void setIntervalMessage(String s) {
+        this.message=s;
     }
 }

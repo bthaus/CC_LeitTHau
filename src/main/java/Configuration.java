@@ -11,7 +11,7 @@ public class Configuration {
 
     public static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
     public static final int MAX_TRIES = 3;
-    public static final boolean SLOW_MODE = true;
+    public static final boolean SLOW_MODE = false;
     public static final int LOWEST_FATAL_STATUS_CODE = 299;
 
 
