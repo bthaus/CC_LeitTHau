@@ -1,6 +1,10 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.net.http.HttpResponse;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class Synchronizer {
@@ -8,7 +12,7 @@ public class Synchronizer {
     private String message="";
     private Thread thread;
     private Callback callback;
-    private static ConcurrentLinkedDeque<Synchronizer> blockingSynchronizers=new ConcurrentLinkedDeque<>();
+    private static final ConcurrentLinkedDeque<Synchronizer> blockingSynchronizers=new ConcurrentLinkedDeque<>();
   
     
     public static void joinAll(){
@@ -19,7 +23,10 @@ public class Synchronizer {
                     System.out.println(s.message);
                     s.thread.join();
 
-                } catch (InterruptedException e) {
+                } catch (CompletionException e){
+                    System.out.println("fatal translation exception has been caught");
+                }
+                catch (InterruptedException e) {
                     s.callback.onError(e);
                 }
             }
@@ -32,7 +39,8 @@ public class Synchronizer {
             try {
                 task.execute();
                 waitForAllRequests();
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
+                System.out.println("caught error in blocked task");
                 callback.onError(e);
             }
             callback.onComplete();

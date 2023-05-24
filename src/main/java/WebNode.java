@@ -1,3 +1,6 @@
+import lombok.Getter;
+import lombok.Setter;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpHeaders;
@@ -8,20 +11,21 @@ import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-
+@Getter
+@Setter
 public class WebNode {
     private final String url;
     private String header = "I am a leaf and hence have no header";
     private final int depth;
-    private boolean successful=true;
+    private boolean successful = true;
     private int tries;
 
-    private static LinkedList<WebNode> rootNodes=new LinkedList<>();
+    private static final LinkedList<WebNode> rootNodes = new LinkedList<>();
 
-    private Synchronizer synchronizer=new Synchronizer();
+    private Synchronizer synchronizer = new Synchronizer();
     private Thread rootThread;
     private Callback callback;
-    private Task task;
+    private final Task task;
 
 
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
@@ -29,38 +33,24 @@ public class WebNode {
     public final static ConcurrentLinkedDeque<String> errorUrls = new ConcurrentLinkedDeque<>();
 
 
-
-    public WebNode(String url, int depth)  {
+    public WebNode(String url, int depth) {
         this.url = url;
         this.depth = depth;
 
         tries = 1;
-        synchronizer.setIntervalMessage(" origin: "+url);
-        this.task= this::crawl;
+        synchronizer.setIntervalMessage(" origin: " + url);
+        this.task = this::crawl;
 
     }
 
 
-    public void startNonBlocking(Callback callback){
-        this.callback=callback;
-       rootThread= synchronizer.createBlockedTask(task,callback);
-       rootNodes.push(this);
-       rootThread.start();
+    public void startNonBlocking(Callback callback) {
+        this.callback = callback;
+        rootThread = synchronizer.createBlockedTask(task, callback);
+        rootNodes.push(this);
+        rootThread.start();
+    }
 
-    }
-    public void join(){
-        try {
-            rootThread.join();
-        } catch (InterruptedException e) {
-            callback.onError(e);
-        }
-    }
-    public static void joinAll(){
-        for (WebNode node:rootNodes
-             ) {
-            node.join();
-        }
-    }
     public void crawl() {
         if (isBaseCase()) return;
 
@@ -81,7 +71,7 @@ public class WebNode {
             synchronizer.removeFuture(response);
 
             //parsing body
-            String hrefs[] = res.body().split("href=\"");
+            String[] hrefs = res.body().split("href=\"");
 
             //iterating over all links
             for (String link : hrefs) {
@@ -95,9 +85,9 @@ public class WebNode {
 
                 //checking for validity and recursively calling crawl
                 if (linkSnipped.contains("https://") || linkSnipped.contains("http://")) {
-                    WebNode child = new WebNode( linkSnipped, getDepth()-1);
+                    WebNode child = new WebNode(linkSnipped, getDepth() - 1);
                     childrenNodes.offer(child);
-                    child.synchronizer=this.synchronizer;
+                    child.synchronizer = this.synchronizer;
                     child.crawl();
 
                 }
@@ -106,7 +96,7 @@ public class WebNode {
         }).exceptionally((exception) -> {
 
             //removing request from active requests as its done
-           synchronizer.removeFuture(response);
+            synchronizer.removeFuture(response);
 
             //recursively calling crawl
             tries++;
@@ -115,7 +105,7 @@ public class WebNode {
         });
 
         //to balance traffic weight only leaf nodes are called asynchronously
-        if(depth <= 1 && Configuration.SLOW_MODE){
+        if (depth <= 1 && Configuration.SLOW_MODE) {
             response.join();
         }
     }
@@ -133,32 +123,14 @@ public class WebNode {
             return true;
         }
         //second recursion base case
-        if(tries > Configuration.MAX_TRIES){
+        if (tries > Configuration.MAX_TRIES) {
             errorUrls.offer(url);
-            successful=false;
-            //childrenNodes.offer(new WebNode(url, depth, false));
-            //urlList.offer(url);
+            successful = false;
             return true;
         }
         //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
         // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
-        if ((urlList.contains(url) && tries == 1) || (errorUrls.contains(url))) {
-            return true;
-        }
-        return false;
-    }
-
-
-
-    /**
-     * Getter and Setter methods
-     */
-    public String getUrl() {
-        return url;
-    }
-
-    public String getHeader() {
-        return header;
+        return (urlList.contains(url) && tries == 1) || (errorUrls.contains(url));
     }
 
     public void setHeader(HttpHeaders header) {
@@ -168,28 +140,9 @@ public class WebNode {
             this.header = header.toString();
         }
     }
-    public void setHeader(String header){
-        this.header=header;
-    }
 
-    public int getDepth() {
-        return depth;
-    }
-
-    public boolean isSuccessful() {
-        return successful;
-    }
-
-    public int getTries() {
-        return tries;
-    }
-
-    public void setTries(int tries) {
-        this.tries = tries;
-    }
-
-    public ConcurrentLinkedDeque<WebNode> getChildrenNodes() {
-        return childrenNodes;
+    public void setHeader(String header) {
+        this.header = header;
     }
 
     public String getName() {

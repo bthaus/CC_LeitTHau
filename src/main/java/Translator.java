@@ -1,3 +1,8 @@
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -6,6 +11,8 @@ import java.time.Duration;
 import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
+@Getter
+@Setter
 public class Translator {
     private final String language;
     private static LinkedList<Translator> translators=new LinkedList<>();
@@ -14,7 +21,6 @@ public class Translator {
     private Task task;
     private Thread thread;
     private Callback callback;
-
 
     private String possibleErrorMessage = "";
     private boolean running;
@@ -27,7 +33,7 @@ public class Translator {
 
     }
 
-    static Translator translate(WebNode webnode, String language, Callback callback){
+    static Translator createAndStartTranslator(WebNode webnode, String language, Callback callback){
         Translator translator=new Translator(webnode,language);
         translator.startNonBlocking(callback);
         translators.push(translator);
@@ -75,11 +81,12 @@ public class Translator {
     public void join(){
         try {
             this.thread.join();
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
 
         }
     }
-    public void translate(WebNode node){
+
+    public void translate(WebNode node) {
         JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(node.getHeader(),"en", language);
         String bodyString = JsonHelper.getJsonString(body);
 
@@ -92,9 +99,9 @@ public class Translator {
            String[] translation = res.body().split("translatedText\": \"");
            possibleErrorMessage = translation[0];
 
-           if (isFatal(res)) return;
+            handlePossibleFatalError(res);
 
-           node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
+            node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
 
         }).exceptionally((exception) -> {
             if (!synchronizer.getFutures().isEmpty()) {
@@ -105,19 +112,19 @@ public class Translator {
             return null;
         });
 
+
     }
 
     private void stop(){
         this.running=false;
     }
 
-    private boolean isFatal(HttpResponse<String> res){
-        if (res.statusCode() > Configuration.LOWEST_FATAL_STATUS_CODE){
+    private void handlePossibleFatalError(HttpResponse<String> res)  {
+        if (res.statusCode() > Configuration.LOWEST_FATAL_STATUS_CODE) {
             System.out.println(possibleErrorMessage);
             stop();
             synchronizer.killAllFutures();
-            return true;
+            callback.onError(new Exception("Translating failed fatally with error code: " + res.statusCode() + " on Url: " + res.uri()));
         }
-        return false;
     }
 }

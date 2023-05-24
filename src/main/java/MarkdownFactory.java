@@ -7,17 +7,21 @@ import java.nio.file.Paths;
 public class MarkdownFactory {
     public Path path;
 
-    public void createMarkdownFile(WebNode root){
-        path = Paths.get("src/main/resources/"+root.getName()+".md");
+    private void createMarkdownFileInternal(WebNode root, String headerMessage, String title){
+        path = Paths.get("src/main/resources/"+root.getName()+title+".md");
         try {
-            Files.writeString(path, getMarkdownString(root), StandardCharsets.UTF_8);
+            Files.writeString(path, " # "+headerMessage+" <br>\n "+ getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
             System.out.println("Invalid Path");
         }
-
-        //for debugging and checks
-        System.out.println(Configuration.successes + " successes");
-        System.out.println(Configuration.failures + " failures");
+    }
+    public void createMarkdownFile(WebNode root, String errorMessage){
+        createMarkdownFileInternal(root,"An error happened when crawling this page.\n <br> " +
+                "Errormessage: "+errorMessage+" <br> ",
+                "WithError");
+    }
+    public void createMarkdownFile(WebNode root){
+        createMarkdownFileInternal(root,"","");
     }
 
     public StringBuilder getMarkdownString(WebNode node){

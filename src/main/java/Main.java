@@ -22,7 +22,7 @@ public class Main {
             node.startNonBlocking(new Callback() {
                 @Override
                 public void onComplete() {
-                    Translator.translate(node, args[2],new Callback(){
+                    Translator.createAndStartTranslator(node, args[2],new Callback(){
                         @Override
                         public void onComplete() {
                             markdownFactory.createMarkdownFile(node);
@@ -30,7 +30,7 @@ public class Main {
 
                         @Override
                         public void onError(Exception e) {
-                            e.printStackTrace();
+                            markdownFactory.createMarkdownFile(node,e.getMessage());
                         }
                     });
                 }
