@@ -22,6 +22,8 @@ public class WebNode {
 
     private static final LinkedList<WebNode> rootNodes = new LinkedList<>();
 
+    private CompletableFuture<HttpResponse<String>> response;
+
     private Synchronizer synchronizer = new Synchronizer();
     private Thread rootThread;
     private Callback callback;
@@ -40,9 +42,7 @@ public class WebNode {
         tries = 1;
         synchronizer.setIntervalMessage(" origin: " + url);
         this.task = this::crawl;
-
     }
-
 
     public void startNonBlocking(Callback callback) {
         this.callback = callback;
@@ -54,16 +54,40 @@ public class WebNode {
     public void crawl() {
         if (isBaseCase()) return;
 
+        prepareForCrawl();
+
+        handleResponse();
+
+        joinResponseInSlowMode();
+    }
+    public boolean isBaseCase() {
+        //guard clauses
+        //first recursion base case
+        if (depth == 0) {
+            return true;
+        }
+        //second recursion base case
+        if (tries > Configuration.MAX_TRIES) {
+            errorUrls.offer(url);
+            successful = false;
+            return true;
+        }
+        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
+        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+        return (urlList.contains(url) && tries == 1) || (errorUrls.contains(url));
+    }
+    public void prepareForCrawl(){
         //creating request
-        CompletableFuture<HttpResponse<String>> response = createRequest();
+        response = createRequest();
 
         //saving already crawled urls
         urlList.offer(url);
 
         // saving away all future-objects for synchronization
         synchronizer.offerFuture(response);
+    }
 
-
+    public void handleResponse(){
         //asynchronously handle response
         response.thenAcceptAsync((res) -> {
             setHeader(res.headers());
@@ -103,7 +127,9 @@ public class WebNode {
             crawl();
             return null;
         });
+    }
 
+    public void joinResponseInSlowMode(){
         //to balance traffic weight only leaf nodes are called asynchronously
         if (depth <= 1 && Configuration.SLOW_MODE) {
             response.join();
@@ -116,22 +142,7 @@ public class WebNode {
         return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());
     }
 
-    public boolean isBaseCase() {
-        //guard clauses
-        //first recursion base case
-        if (depth == 0) {
-            return true;
-        }
-        //second recursion base case
-        if (tries > Configuration.MAX_TRIES) {
-            errorUrls.offer(url);
-            successful = false;
-            return true;
-        }
-        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
-        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
-        return (urlList.contains(url) && tries == 1) || (errorUrls.contains(url));
-    }
+
 
     public void setHeader(HttpHeaders header) {
         if (header == null) {

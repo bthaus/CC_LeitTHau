@@ -73,8 +73,8 @@ public class Translator {
      }*/
     public void startNonBlocking(Callback callback){
         this.callback=callback;
-       this.thread=synchronizer.createBlockedTask(task,callback);
-       this.thread.start();
+        this.thread=synchronizer.createBlockedTask(task,callback);
+        this.thread.start();
 
     }
 

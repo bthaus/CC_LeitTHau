@@ -18,21 +18,30 @@ public class TranslatorTest {
     public Translator translator;
 
     public ConcurrentLinkedDeque<WebNode> childrenNodes;
-/*
+
     @Before
-    public void setUo(){
-        translator = new Translator("DE");
+    public void setUp(){
         openMocks(this);
-
         childrenNodes = new ConcurrentLinkedDeque<>();
-
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
+
+        Translator.createAndStartTranslator(webNodeMock, "DE", new Callback() {
+            @Override
+            public void onComplete() {
+                System.out.println("all threads has been translated i think");  //TODO delete or change
+            }
+
+            @Override
+            public void onError(Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
     @Test
     public void checkTranslationAPITest(){
         assertEquals (Configuration.doIHaveATranslationApiKey, translator.checkForTranslationApiKey());
     }
-
+/*
     @Test
     public void deepTranslateWithChildTest(){
         childrenNodes.offer(webNodeMock);

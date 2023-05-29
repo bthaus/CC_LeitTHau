@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>WebNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Clean_Code_LeitTHau</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">WebNode.java</span></div><h1>WebNode.java</h1><pre class="source lang-java linenums">import lombok.Getter;
+import lombok.Setter;
+
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpHeaders;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+import java.util.LinkedList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentLinkedDeque;
+
+@Getter
+<span class="nc" id="L15">@Setter</span>
+public class WebNode {
+<span class="nc" id="L17">    private final String url;</span>
+<span class="pc" id="L18">    private String header = &quot;I am a leaf and hence have no header&quot;;</span>
+<span class="nc" id="L19">    private final int depth;</span>
+<span class="pc" id="L20">    private boolean successful = true;</span>
+<span class="fc" id="L21">    private int tries;</span>
+
+<span class="fc" id="L23">    private static final LinkedList&lt;WebNode&gt; rootNodes = new LinkedList&lt;&gt;();</span>
+
+<span class="fc" id="L25">    private Synchronizer synchronizer = new Synchronizer();</span>
+<span class="nc" id="L26">    private Thread rootThread;</span>
+<span class="nc" id="L27">    private Callback callback;</span>
+<span class="nc" id="L28">    private final Task task;</span>
+
+
+<span class="pc" id="L31">    private final ConcurrentLinkedDeque&lt;WebNode&gt; childrenNodes = new ConcurrentLinkedDeque&lt;&gt;();</span>
+<span class="fc" id="L32">    public final static ConcurrentLinkedDeque&lt;String&gt; urlList = new ConcurrentLinkedDeque&lt;&gt;();</span>
+<span class="fc" id="L33">    public final static ConcurrentLinkedDeque&lt;String&gt; errorUrls = new ConcurrentLinkedDeque&lt;&gt;();</span>
+
+
+<span class="fc" id="L36">    public WebNode(String url, int depth) {</span>
+<span class="fc" id="L37">        this.url = url;</span>
+<span class="fc" id="L38">        this.depth = depth;</span>
+
+<span class="fc" id="L40">        tries = 1;</span>
+<span class="fc" id="L41">        synchronizer.setIntervalMessage(&quot; origin: &quot; + url);</span>
+<span class="fc" id="L42">        this.task = this::crawl;</span>
+
+<span class="fc" id="L44">    }</span>
+
+
+    public void startNonBlocking(Callback callback) {
+<span class="nc" id="L48">        this.callback = callback;</span>
+<span class="nc" id="L49">        rootThread = synchronizer.createBlockedTask(task, callback);</span>
+<span class="nc" id="L50">        rootNodes.push(this);</span>
+<span class="nc" id="L51">        rootThread.start();</span>
+<span class="nc" id="L52">    }</span>
+
+    public void crawl() {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (isBaseCase()) return;</span>
+
+        //creating request
+<span class="nc" id="L58">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; response = createRequest();</span>
+
+        //saving already crawled urls
+<span class="nc" id="L61">        urlList.offer(url);</span>
+
+        // saving away all future-objects for synchronization
+<span class="nc" id="L64">        synchronizer.offerFuture(response);</span>
+
+
+        //asynchronously handle response
+<span class="nc" id="L68">        response.thenAcceptAsync((res) -&gt; {</span>
+<span class="nc" id="L69">            setHeader(res.headers());</span>
+            //removing future from active requests
+<span class="nc" id="L71">            synchronizer.removeFuture(response);</span>
+
+            //parsing body
+<span class="nc" id="L74">            String[] hrefs = res.body().split(&quot;href=\&quot;&quot;);</span>
+
+            //iterating over all links
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (String link : hrefs) {</span>
+                //parsing link
+                String linkSnipped;
+                try {
+<span class="nc" id="L81">                    linkSnipped = link.substring(0, link.indexOf(&quot;\&quot;&quot;));</span>
+<span class="nc" id="L82">                } catch (Exception e) {</span>
+<span class="nc" id="L83">                    linkSnipped = link;</span>
+<span class="nc" id="L84">                }</span>
+
+                //checking for validity and recursively calling crawl
+<span class="nc bnc" id="L87" title="All 4 branches missed.">                if (linkSnipped.contains(&quot;https://&quot;) || linkSnipped.contains(&quot;http://&quot;)) {</span>
+<span class="nc" id="L88">                    WebNode child = new WebNode(linkSnipped, getDepth() - 1);</span>
+<span class="nc" id="L89">                    childrenNodes.offer(child);</span>
+<span class="nc" id="L90">                    child.synchronizer = this.synchronizer;</span>
+<span class="nc" id="L91">                    child.crawl();</span>
+
+                }
+            }
+            //on exception call this
+<span class="nc" id="L96">        }).exceptionally((exception) -&gt; {</span>
+
+            //removing request from active requests as its done
+<span class="nc" id="L99">            synchronizer.removeFuture(response);</span>
+
+            //recursively calling crawl
+<span class="nc" id="L102">            tries++;</span>
+<span class="nc" id="L103">            crawl();</span>
+<span class="nc" id="L104">            return null;</span>
+        });
+
+        //to balance traffic weight only leaf nodes are called asynchronously
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (depth &lt;= 1 &amp;&amp; Configuration.SLOW_MODE) {</span>
+            response.join();
+        }
+<span class="nc" id="L111">    }</span>
+
+    public CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; createRequest() {
+<span class="nc" id="L114">        HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(url));</span>
+<span class="nc" id="L115">        HttpRequest req = builder.GET().build();</span>
+<span class="nc" id="L116">        return HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(req, HttpResponse.BodyHandlers.ofString());</span>
+    }
+
+    public boolean isBaseCase() {
+        //guard clauses
+        //first recursion base case
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (depth == 0) {</span>
+<span class="fc" id="L123">            return true;</span>
+        }
+        //second recursion base case
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">        if (tries &gt; Configuration.MAX_TRIES) {</span>
+<span class="nc" id="L127">            errorUrls.offer(url);</span>
+<span class="nc" id="L128">            successful = false;</span>
+<span class="nc" id="L129">            return true;</span>
+        }
+        //don't crawl the same page twice. if urllist contains the url it must be try 2, otherwise it would be a recall of the same url.
+        // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
+<span class="pc bpc" id="L133" title="4 of 6 branches missed.">        return (urlList.contains(url) &amp;&amp; tries == 1) || (errorUrls.contains(url));</span>
+    }
+
+    public void setHeader(HttpHeaders header) {
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (header == null) {</span>
+<span class="nc" id="L138">            this.header = &quot;no header&quot;;</span>
+        } else {
+<span class="nc" id="L140">            this.header = header.toString();</span>
+        }
+<span class="nc" id="L142">    }</span>
+
+    public void setHeader(String header) {
+<span class="nc" id="L145">        this.header = header;</span>
+<span class="nc" id="L146">    }</span>
+
+    public String getName() {
+<span class="nc" id="L149">        return url.substring(url.indexOf(&quot;www.&quot;));</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
