@@ -31,10 +31,9 @@ public class Synchronizer {
                 }
             }
             blockingSynchronizers.clear();
-
     }
 
-    public  Thread createBlockedTask(Task task, Callback callback){
+    public Thread createBlockedTask(Task task, Callback callback){
         this.thread= new Thread(() -> {
             try {
                 task.execute();
@@ -49,7 +48,6 @@ public class Synchronizer {
      this.callback=callback;
      blockingSynchronizers.offer(this);
      return thread;
-        
     }
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
@@ -108,4 +106,6 @@ public class Synchronizer {
     public void setIntervalMessage(String s) {
         this.message=s;
     }
+
+
 }

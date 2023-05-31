@@ -1,5 +1,7 @@
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
 
 import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
@@ -7,10 +9,19 @@ import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 public class WebNodeTest {
 
     public WebNode webNode;
+
+    @Mock
+    Synchronizer synchronizerMock;
+
+    @Before
+    public void setUp (){
+        synchronizerMock = mock (Synchronizer.class);
+    }
 
     @After
     public void cleanUp(){
@@ -39,6 +50,21 @@ public class WebNodeTest {
     }
 
     @Test
+    public void checkIsBaseCaseMaxTriesTest(){
+        webNode = new WebNode("url", 1);
+        webNode.setTries(4);
+
+        assertTrue(webNode.isBaseCase());
+    }
+    @Test
+    public void checkIsBaseCaseMaxTriesTest2(){
+        webNode = new WebNode("url", 1);
+        webNode.setTries(4);
+
+        assertTrue(webNode.isBaseCase() && !webNode.isSuccessful());
+    }
+
+    @Test
     public void getNameTest(){
         webNode = new WebNode("https://www.testURL.at", 0);
         assertEquals("www.testURL.at", webNode.getName());
@@ -58,33 +84,6 @@ public class WebNodeTest {
         System.out.println(actual);
     }
 
-    //Crawl is testet with google, facebook and wikipedia. if all of these tests go wrong, we can assume,
-    // it's the webscrawlers fault as it is very unlikely that all these 3 sites are down
-
-/*
-    @Test
-    public void crawlFacebookTest(){
-        webNode = new WebNode("https://www.facebook.com/", 2);
-        int comparisonValue = webNode.getChildrenNodes().size();
-
-        webNode.crawl();
-      //  webNode.waitForRequests();
-
-        assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
-
-    }
-
-    @Test
-    public void crawlWikipediaTest(){
-        webNode = new WebNode("https://de.wikipedia.org/wiki/Wikipedia:Hauptseite", 2);
-        int comparisonValue = webNode.getChildrenNodes().size();
-
-        webNode.crawl();
-       // webNode.waitForRequests();
-
-        assertNotEquals(comparisonValue, webNode.getChildrenNodes().size());
-    }
-*/
     @Test
     public void createRequestExceptionTest(){
         webNode = new WebNode("", 1);
@@ -93,5 +92,25 @@ public class WebNodeTest {
             webNode.createRequest();
         });
     }
+
+    @Test
+    public void prepareForCrawlTest(){
+        int before = WebNode.urlList.size();
+        webNode = new WebNode("https://www.url.at", 1);
+        webNode.prepareForCrawl();
+        int after = WebNode.urlList.size();
+
+        assertTrue(after > before);
+    }
+
+   /* @Test
+    public void handleResponseTest(){
+        webNode = new WebNode("https://www.bodofoto.at", 2);
+        webNode.prepareForCrawl();
+        webNode.setSynchronizer(synchronizerMock);
+        webNode.handleResponse();
+
+        verify(synchronizerMock, times((1))).removeFuture(webNode.createRequest());
+    }*/
 
 }

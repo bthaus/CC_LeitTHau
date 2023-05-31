@@ -31,7 +31,7 @@ public class MarkdownFactoryTest {
         childrenNodes = new ConcurrentLinkedDeque<>();
 
         when(webNodeMock.getUrl()).thenReturn("");
-        when(webNodeMock.getDepth()).thenReturn(1);
+        when(webNodeMock.getDepth()).thenReturn(2);
         when(webNodeMock.getHeader()).thenReturn(defaultHeader);
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
 
@@ -121,4 +121,15 @@ public class MarkdownFactoryTest {
 
         assertEquals(" # An error happened when crawling this page.", markdownFileContentWithError);
     }
+
+    /*
+    @Test
+    public void getMarkdownStringKidNodesTest(){
+        childrenNodes.add(webNodeMock);
+        childrenNodes.add(webNodeMock);
+
+        markdownFactory.getMarkdownString(webNodeMock);
+        verify(webNodeMock, times(1)).getChildrenNodes();
+
+    }*/ //todo fix or delete
 }

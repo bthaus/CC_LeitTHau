@@ -113,7 +113,6 @@ public class WebNode {
                     childrenNodes.offer(child);
                     child.synchronizer = this.synchronizer;
                     child.crawl();
-
                 }
             }
             //on exception call this
@@ -158,5 +157,9 @@ public class WebNode {
 
     public String getName() {
         return url.substring(url.indexOf("www."));
+    }
+
+    public boolean isSuccessful() {
+        return successful;
     }
 }
