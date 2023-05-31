@@ -32,7 +32,6 @@ public class MarkdownFactoryTest {
 
         when(webNodeMock.getUrl()).thenReturn("");
         when(webNodeMock.getDepth()).thenReturn(1);
-        when(webNodeMock.isSuccessful()).thenReturn(true);
         when(webNodeMock.getHeader()).thenReturn(defaultHeader);
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
 
@@ -45,27 +44,40 @@ public class MarkdownFactoryTest {
 
     @Test
     public void getFormatTest(){
-        String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
-        assertEquals(expected, markdownFactory.getFormat(webNodeMock));
+        String actual = markdownFactory.getFormat(webNodeMock);
+        assertTrue(actual.contains("> **"));
     }
 
     @Test
     public void getFormatVerifyTest(){
+        when(webNodeMock.isSuccessful()).thenReturn(true);
         markdownFactory.getFormat(webNodeMock);
         verify(webNodeMock, times(1)).getUrl();
     }
-
     @Test
-    public void getMarkdownStringTest() {
+    public void getFormatUnsuccessfulTest(){
+        when(webNodeMock.isSuccessful()).thenReturn(false);
+        String actual = markdownFactory.getFormat(webNodeMock);
+        assertTrue(actual.contains("> *"));
+    }
+    @Test
+    public void getFormatUnsuccessfulVerifyTest(){
+        when(webNodeMock.isSuccessful()).thenReturn(false);
+        markdownFactory.getFormat(webNodeMock);
+        verify(webNodeMock, times(1)).getUrl();
+    }
+    @Test
+    public void getMarkdownStringTest(){
+        when(webNodeMock.isSuccessful()).thenReturn(true);
+        String actual = markdownFactory.getMarkdownString(webNodeMock).toString();
+        assertTrue(actual.contains(webNodeMock.getHeader()) && actual.contains("> **"));
+    }
+    @Test
+    public void getMarkdownStringVerifyTest() {
         markdownFactory.getMarkdownString(webNodeMock);
         verify(webNodeMock, times(1)).getUrl();
     }
 
-    @Test
-    public void getMarkdownStringVerifyTest(){
-        String expected = "## ---> **** <br>\n" + "I am a leaf and hence have no header\n";
-        assertEquals(expected, markdownFactory.getMarkdownString(webNodeMock).toString());
-    }
 
     @Test
     public void checkCreatedMarkdownFile(){

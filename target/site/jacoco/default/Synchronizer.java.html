@@ -35,9 +35,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 <span class="nc" id="L35">    }</span>
 
     public  Thread createBlockedTask(Task task, Callback callback){
-<span class="nc" id="L38">        this.thread= new Thread(() -&gt; {</span>
+<span class="fc" id="L38">        this.thread= new Thread(() -&gt; {</span>
             try {
-<span class="nc" id="L40">                task.execute();</span>
+<span class="fc" id="L40">                task.execute();</span>
 <span class="nc" id="L41">                waitForAllRequests();</span>
 <span class="nc" id="L42">            } catch (RuntimeException e) {</span>
 <span class="nc" id="L43">                System.out.println(&quot;caught error in blocked task&quot;);</span>
@@ -46,17 +46,17 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 <span class="nc" id="L46">            callback.onComplete();</span>
 <span class="nc" id="L47">        });</span>
 
-<span class="nc" id="L49">     this.callback=callback;</span>
-<span class="nc" id="L50">     blockingSynchronizers.offer(this);</span>
-<span class="nc" id="L51">     return thread;</span>
+<span class="fc" id="L49">     this.callback=callback;</span>
+<span class="fc" id="L50">     blockingSynchronizers.offer(this);</span>
+<span class="fc" id="L51">     return thread;</span>
         
     }
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
         //every second it is checked if no further requests are called
-<span class="nc" id="L57">        int keepAlive = 0;</span>
-<span class="nc" id="L58">        int temp = 0;</span>
-<span class="nc bnc" id="L59" title="All 2 branches missed.">        while (getFutures().size() &gt; 0) {</span>
+<span class="fc" id="L57">        int keepAlive = 0;</span>
+<span class="fc" id="L58">        int temp = 0;</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">        while (getFutures().size() &gt; 0) {</span>
             try {
 <span class="nc" id="L61">                Thread.sleep(1000);</span>
 

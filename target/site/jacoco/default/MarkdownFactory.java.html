@@ -42,10 +42,10 @@ import java.nio.file.Paths;
 <span class="fc" id="L42">        formattedLine = concatNElements(formattedLine,&quot;#&quot;, Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(&quot; &quot;);</span>
 <span class="fc" id="L43">        formattedLine = concatNElements(formattedLine,&quot;-&quot;, Configuration.getMaxCrawlDepth()-node.getDepth());</span>
 
-<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (node.isSuccessful()){</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (node.isSuccessful()){</span>
 <span class="fc" id="L46">            formattedLine = formattedLine.concat(&quot;&gt; **&quot; + node.getUrl() + &quot;** &lt;br&gt;\n&quot;);</span>
         } else{
-<span class="nc" id="L48">            formattedLine = formattedLine.concat(&quot;&gt; *&quot; + node.getUrl() + &quot;* &lt;br&gt;\n&quot;);</span>
+<span class="fc" id="L48">            formattedLine = formattedLine.concat(&quot;&gt; *&quot; + node.getUrl() + &quot;* &lt;br&gt;\n&quot;);</span>
         }
 <span class="fc" id="L50">        formattedLine = formattedLine.concat(node.getHeader() + &quot;\n&quot;);</span>
 

@@ -51,7 +51,7 @@ public class WebNode {
         rootThread.start();
     }
 
-    public void crawl() {
+    public void crawl() {       //TODO did that... questioning a bit the smartness of this move but i think it helps to test...
         if (isBaseCase()) return;
 
         prepareForCrawl();

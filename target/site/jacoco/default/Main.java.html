@@ -16,46 +16,43 @@
 <span class="nc" id="L16">       urls.push(&quot;https://www.wikipedia.at&quot;);</span>
 <span class="nc" id="L17">       urls.push(&quot;https://www.google.at&quot;);</span>
 
-<span class="nc bnc" id="L19" title="All 2 branches missed.">        for (String url:urls</span>
-             ) {
-<span class="nc" id="L21">            WebNode node=new WebNode(url,Configuration.getMaxCrawlDepth());</span>
-<span class="nc" id="L22">            node.startNonBlocking(new Callback() {</span>
+<span class="nc bnc" id="L19" title="All 2 branches missed.">        for (String url:urls) {</span>
+<span class="nc" id="L20">            WebNode node=new WebNode(url,Configuration.getMaxCrawlDepth());</span>
+<span class="nc" id="L21">            node.startNonBlocking(new Callback() {</span>
                 @Override
                 public void onComplete() {
-<span class="nc" id="L25">                    Translator.createAndStartTranslator(node, args[2],new Callback(){</span>
+<span class="nc" id="L24">                    Translator.createAndStartTranslator(node, args[2],new Callback(){</span>
                         @Override
                         public void onComplete() {
-<span class="nc" id="L28">                            markdownFactory.createMarkdownFile(node);</span>
-<span class="nc" id="L29">                        }</span>
+<span class="nc" id="L27">                            markdownFactory.createMarkdownFile(node);</span>
+<span class="nc" id="L28">                        }</span>
 
                         @Override
                         public void onError(Exception e) {
-<span class="nc" id="L33">                            markdownFactory.createMarkdownFile(node,e.getMessage());</span>
-<span class="nc" id="L34">                        }</span>
+<span class="nc" id="L32">                            markdownFactory.createMarkdownFile(node,e.getMessage());</span>
+<span class="nc" id="L33">                        }</span>
                     });
-<span class="nc" id="L36">                }</span>
+<span class="nc" id="L35">                }</span>
 
                 @Override
                 public void onError(Exception e) {
 
-<span class="nc" id="L41">                    e.printStackTrace();</span>
-<span class="nc" id="L42">                }</span>
+<span class="nc" id="L40">                    e.printStackTrace();</span>
+<span class="nc" id="L41">                }</span>
             });
-<span class="nc" id="L44">            nodes.push(node);</span>
+<span class="nc" id="L43">            nodes.push(node);</span>
 
-<span class="nc" id="L46">        }</span>
+<span class="nc" id="L45">        }</span>
+
 <span class="nc" id="L47">        markdownFactory = new MarkdownFactory();</span>
 
+<span class="nc" id="L49">        System.out.println(&quot;waiting for everything to finish&quot;);</span>
+<span class="nc" id="L50">        Synchronizer.joinAll();</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        for (WebNode node:nodes) {</span>
+<span class="nc" id="L52">            markdownFactory.createMarkdownFile(node);</span>
+<span class="nc" id="L53">        }</span>
 
-
-<span class="nc" id="L51">        System.out.println(&quot;waiting for everything to finish&quot;);</span>
-<span class="nc" id="L52">        Synchronizer.joinAll();</span>
-<span class="nc bnc" id="L53" title="All 2 branches missed.">        for (WebNode node:nodes</span>
-             ) {
-<span class="nc" id="L55">        markdownFactory.createMarkdownFile(node);</span>
-<span class="nc" id="L56">        }</span>
-
-<span class="nc" id="L58">    }</span>
+<span class="nc" id="L55">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
