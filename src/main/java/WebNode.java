@@ -159,7 +159,4 @@ public class WebNode {
         return url.substring(url.indexOf("www."));
     }
 
-    public boolean isSuccessful() {
-        return successful;
-    }
 }

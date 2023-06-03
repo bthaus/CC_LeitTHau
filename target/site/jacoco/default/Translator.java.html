@@ -92,7 +92,7 @@ public class Translator {
 
 <span class="fc" id="L93">        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers(&quot;content-type&quot;,&quot;application/json&quot;,&quot;X-RapidAPI-Key&quot;, Configuration.TRANSLATION_API_KEY,&quot;X-RapidAPI-Host&quot;, Configuration.TRANSLATION_API_HOST).build();</span>
 <span class="fc" id="L94">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; future = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());</span>
-<span class="fc" id="L95">       synchronizer.offerFuture(future);</span>
+<span class="fc" id="L95">        synchronizer.offerFuture(future);</span>
 
 <span class="fc" id="L97">        future.thenAcceptAsync((res) -&gt; {</span>
 <span class="nc" id="L98">          synchronizer.removeFuture(future);</span>

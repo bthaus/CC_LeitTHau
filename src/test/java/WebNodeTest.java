@@ -78,6 +78,12 @@ public class WebNodeTest {
     }
 
     @Test
+    public void setHttpsHeaderIsNotNull(){
+        webNode = new WebNode("url", 0);
+        assertNotNull(webNode.getHeader());
+    }
+
+    @Test
     public void createRequestTest(){            //TODO not an actual test... can i even test it?
         webNode = new WebNode("https://www.testURL.at", 1);
         CompletableFuture<HttpResponse<String>> actual = webNode.createRequest();
@@ -103,8 +109,8 @@ public class WebNodeTest {
         assertTrue(after > before);
     }
 
-   /* @Test
-    public void handleResponseTest(){
+   /*@Test
+    public void handleResponseTest(){       //todo isnt working yet
         webNode = new WebNode("https://www.bodofoto.at", 2);
         webNode.prepareForCrawl();
         webNode.setSynchronizer(synchronizerMock);
