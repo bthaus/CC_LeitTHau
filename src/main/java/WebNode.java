@@ -20,14 +20,8 @@ public class WebNode {
     private boolean successful = true;
     private int tries;
 
-    private static final LinkedList<WebNode> rootNodes = new LinkedList<>();
-
     private CompletableFuture<HttpResponse<String>> response;
-
     private Synchronizer synchronizer = new Synchronizer();
-    private Thread rootThread;
-    private Callback callback;
-    private final Task task;
 
 
     private final ConcurrentLinkedDeque<WebNode> childrenNodes = new ConcurrentLinkedDeque<>();
@@ -41,20 +35,17 @@ public class WebNode {
 
         tries = 1;
         synchronizer.setIntervalMessage(" origin: " + url);
-        this.task = this::crawl;
     }
 
     public void startNonBlocking(Callback callback) {
-        this.callback = callback;
-        rootThread = synchronizer.createBlockedTask(task, callback);
-        rootNodes.push(this);
-        rootThread.start();
+        synchronizer.createNonBlockingTask(this::crawl, callback);
+        synchronizer.start();
     }
 
-    public void crawl() {       //TODO did that... questioning a bit the smartness of this move but i think it helps to test...
+    public void crawl() {
         if (isBaseCase()) return;
 
-        prepareForCrawl();
+        initiateCrawling();
 
         handleResponse();
 
@@ -76,7 +67,7 @@ public class WebNode {
         // so if the first appearance of a link failed it has to be inside errorulrs to be returned, which it only is if it has been crawled 3 times
         return (urlList.contains(url) && tries == 1) || (errorUrls.contains(url));
     }
-    public void prepareForCrawl(){
+    public void initiateCrawling(){
         //creating request
         response = createRequest();
 

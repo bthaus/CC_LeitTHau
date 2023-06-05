@@ -1,13 +1,11 @@
 import java.util.LinkedList;
 
 public class Main {
-    public static WebNode root;
     public static MarkdownFactory markdownFactory;
 
 
     public static void main(String[] args) {
         Configuration.setMaxCrawlDepth(Integer.parseInt(args[1]));
-        Configuration.setRootUrl(args[0]);
 
        LinkedList<String> urls=new LinkedList<>();
        LinkedList<WebNode> nodes=new LinkedList<>();
@@ -21,7 +19,7 @@ public class Main {
             node.startNonBlocking(new Callback() {
                 @Override
                 public void onComplete() {
-                    Translator.createAndStartTranslator(node, args[2],new Callback(){
+                    Translator.createAndStartNonBlocking(node, args[2],new Callback(){
                         @Override
                         public void onComplete() {
                             markdownFactory.createMarkdownFile(node);
@@ -36,8 +34,7 @@ public class Main {
 
                 @Override
                 public void onError(Exception e) {
-
-                    e.printStackTrace();
+                    Log.stackTrace(e);
                 }
             });
             nodes.push(node);
@@ -46,7 +43,7 @@ public class Main {
 
         markdownFactory = new MarkdownFactory();
 
-        System.out.println("waiting for everything to finish");
+        Log.info("waiting for everything to finish");
         Synchronizer.joinAll();
         for (WebNode node:nodes) {
             markdownFactory.createMarkdownFile(node);

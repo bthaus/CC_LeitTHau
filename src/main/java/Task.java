@@ -1,3 +1,3 @@
 public interface Task {
-    public void execute();
+    void execute();
 }

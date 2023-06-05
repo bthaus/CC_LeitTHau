@@ -12,9 +12,10 @@ public class MarkdownFactory {
         try {
             Files.writeString(path, " # " + headerMessage +" <br>\n " + getMarkdownString(root), StandardCharsets.UTF_8);
         }catch (IOException ex) {
-            System.out.println("Invalid Path");
+           Log.err("Invalid Path");
         }
     }
+    //overwritten method for createmarkdown file to accomodate passing an error message or not, while still calling the same internal function
     public void createMarkdownFile(WebNode root, String errorMessage){
         createMarkdownFileInternal(root,"An error happened when crawling this page.\n <br> " +
                 "Errormessage: " + errorMessage + " <br> ","WithError");

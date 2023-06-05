@@ -30,6 +30,7 @@ public class JsonHelper{
             this.target = target;
         }
 
+        //getters and setters are never used, but are required for jackson
         public String getQ() {
             return q;
         }
