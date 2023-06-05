@@ -3,15 +3,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.net.http.HttpResponse;
-import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.LinkedBlockingDeque;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.google.code.tempusfugit.*;
 import org.mockito.Mock;
 
 public class SynchronizerTest {
@@ -72,7 +69,7 @@ public class SynchronizerTest {
             throw new RuntimeException("test");
         }, new Callback() {
             @Override
-            public void onComplete() {
+            public void onComplete(Object o) {
 
             }
 
@@ -94,7 +91,7 @@ public class SynchronizerTest {
         final boolean[] called = {false};
         synchronizer.createNonBlockingTask(() -> System.out.println("Executing"), new Callback() {
             @Override
-            public void onComplete() {
+            public void onComplete(Object o) {
                 System.out.println("task completed");
                 called[0] = true;
             }
@@ -115,7 +112,7 @@ public class SynchronizerTest {
         final boolean[] executed = {false};
         synchronizer.createNonBlockingTask(() -> executed[0] = true, new Callback() {
             @Override
-            public void onComplete() {
+            public void onComplete(Object o) {
                 assertTrue(executed[0]);
             }
 
@@ -136,7 +133,7 @@ public class SynchronizerTest {
             }
         }, new Callback() {
             @Override
-            public void onComplete() {
+            public void onComplete(Object o) {
                 System.out.println("on complete");
             }
 

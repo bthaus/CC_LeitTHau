@@ -6,6 +6,7 @@ public class Configuration {
     public static final String TRANSLATION_API_KEY = "8be2472a36msh8f684a5c19a2e7fp1efedbjsn205de06bd3c9";
     public static final String TRANSLATION_API_HOST = "google-translator9.p.rapidapi.com";
     public static final boolean doIHaveATranslationApiKey = true;
+    public static boolean doIStopOnFatalTranslationError=true;
 
     private static int maxCrawlDepth;
 

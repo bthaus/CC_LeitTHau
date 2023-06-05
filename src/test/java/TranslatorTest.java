@@ -15,7 +15,7 @@ public class TranslatorTest {
     public WebNode webNodeMock;
 
     @InjectMocks
-    public Translator translator;
+    public WebNodeTranslator translator;
 
     public ConcurrentLinkedDeque<WebNode> childrenNodes;
 
@@ -24,10 +24,10 @@ public class TranslatorTest {
         openMocks(this);
         childrenNodes = new ConcurrentLinkedDeque<>();
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
-
-        Translator.createAndStartNonBlocking(webNodeMock, "DE", new Callback() {
+        translator=new WebNodeTranslator("en", webNodeMock);
+        translator.startNonBlocking(new Callback() {
             @Override
-            public void onComplete() {
+            public void onComplete(Object o) {
                 System.out.println("all threads has been translated i think");  //TODO delete or change
             }
 
@@ -36,6 +36,7 @@ public class TranslatorTest {
                 e.printStackTrace();
             }
         });
+
     }
     @Test
     public void checkTranslationAPITest(){
