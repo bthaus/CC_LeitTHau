@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.net.http.HttpHeaders;
-import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 
@@ -103,7 +102,7 @@ public class WebNodeTest {
     public void prepareForCrawlTest(){
         int before = WebNode.urlList.size();
         webNode = new WebNode("https://www.url.at", 1);
-        webNode.prepareForCrawl();
+        webNode.initiateCrawling();
         int after = WebNode.urlList.size();
 
         assertTrue(after > before);

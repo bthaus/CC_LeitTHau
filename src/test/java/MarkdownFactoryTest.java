@@ -38,7 +38,7 @@ public class MarkdownFactoryTest {
         depth=3;
         Configuration.setMaxCrawlDepth(depth);
         url = "https://www.bodofoto.at/";
-        Configuration.setRootUrl(url);
+
 
     }
 

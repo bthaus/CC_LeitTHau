@@ -24,45 +24,133 @@ public class SynchronizerTest {
     public Synchronizer synchronizer;
 
     @Before
-    public void init(){
+    public void init() {
         webNode = new WebNode("Url", 2);
         testFuture = new CompletableFuture<>();
 
-        webNodeMock = mock (WebNode.class);
+        webNodeMock = mock(WebNode.class);
         synchronizer = new Synchronizer();
 
-        when(webNodeMock.getSynchronizer()).thenReturn (synchronizer);
+        when(webNodeMock.getSynchronizer()).thenReturn(synchronizer);
 
     }
+
     @After
-    public void cleanUp(){
+    public void cleanUp() {
         webNode = null;
         testFuture = null;
     }
 
     @Test
-    public void offerFutureTest(){
+    public void offerFutureTest() {
         int previousSize = webNode.getSynchronizer().getFutures().size();
         webNode.getSynchronizer().offerFuture(testFuture);
-        assertEquals(previousSize+1, webNode.getSynchronizer().getFutures().size());
+        assertEquals(previousSize + 1, webNode.getSynchronizer().getFutures().size());
     }
 
     @Test
-    public void removeFutureTest(){
+    public void removeFutureTest() {
         webNode.getSynchronizer().offerFuture(testFuture);
         int previousSize = webNode.getSynchronizer().getFutures().size();
         webNode.getSynchronizer().removeFuture(testFuture);
-        assertEquals(previousSize-1, webNode.getSynchronizer().getFutures().size());
+        assertEquals(previousSize - 1, webNode.getSynchronizer().getFutures().size());
     }
 
     @Test
-    public void killAllFuturesTest(){
+    public void killAllFuturesTest() {
         webNode.getSynchronizer().offerFuture(testFuture);
         webNode.getSynchronizer().offerFuture(testFuture);
         webNode.getSynchronizer().offerFuture(testFuture);
         webNode.getSynchronizer().killAllFutures();
         assertTrue(webNode.getSynchronizer().getFutures().isEmpty());
     }
+
+    @Test
+    public void onErrorCallbackTest() {
+        final boolean[] thrown = {false};
+        synchronizer.createNonBlockingTask(() -> {
+            throw new RuntimeException("test");
+        }, new Callback() {
+            @Override
+            public void onComplete() {
+
+            }
+
+            @Override
+            public void onError(Exception e) {
+                thrown[0] = true;
+                System.out.println("error thrown in test");
+                assertEquals("test", e.getMessage());
+
+            }
+        });
+        synchronizer.startTask();
+        synchronizer.join();
+        assertTrue(thrown[0]);
+    }
+
+    @Test
+    public void onCompleteCallbackTest() {
+        final boolean[] called = {false};
+        synchronizer.createNonBlockingTask(() -> System.out.println("Executing"), new Callback() {
+            @Override
+            public void onComplete() {
+                System.out.println("task completed");
+                called[0] = true;
+            }
+
+            @Override
+            public void onError(Exception e) {
+                fail();
+            }
+        });
+        synchronizer.startTask();
+        synchronizer.join();
+        assertTrue(called[0]);
+
+    }
+
+    @Test
+    public void startTaskTest() {
+        final boolean[] executed = {false};
+        synchronizer.createNonBlockingTask(() -> executed[0] = true, new Callback() {
+            @Override
+            public void onComplete() {
+                assertTrue(executed[0]);
+            }
+
+            @Override
+            public void onError(Exception e) {
+
+            }
+        });
+        synchronizer.startTask();
+        synchronizer.join();
+    }
+
+    @Test
+    public void interruptTaskTest() {
+        synchronizer.createNonBlockingTask(() -> {
+            while (true) {
+                Thread.sleep(100);
+            }
+        }, new Callback() {
+            @Override
+            public void onComplete() {
+                System.out.println("on complete");
+            }
+
+            @Override
+            public void onError(Exception e) {
+                System.out.println("on error");
+            }
+        });
+        synchronizer.startTask();
+        synchronizer.getThread().interrupt();
+        synchronizer.join();
+    }
+
+
 
 
 }

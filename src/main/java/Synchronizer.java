@@ -1,12 +1,10 @@
 import lombok.Getter;
-import lombok.Setter;
 
 import java.net.http.HttpResponse;
-import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentLinkedDeque;
-
+@Getter
 public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
     private String message="";
@@ -16,15 +14,15 @@ public class Synchronizer {
   
     
     public static void joinAll(){
-        System.out.println(blockingSynchronizers.size());
+       Log.debug(blockingSynchronizers.size());
             for (Synchronizer s: blockingSynchronizers
                  ) {
                 try {
-                    System.out.println(s.message);
+                    Log.info(s.message);
                     s.thread.join();
 
                 } catch (CompletionException e){
-                    System.out.println("fatal translation exception has been caught");
+                    Log.err("fatal translation exception has been caught");
                 }
                 catch (InterruptedException e) {
                     s.callback.onError(e);
@@ -33,21 +31,21 @@ public class Synchronizer {
             blockingSynchronizers.clear();
     }
 
-    public Thread createBlockedTask(Task task, Callback callback){
+    public void createNonBlockingTask(Task task, Callback callback){
+        this.callback=callback;
+        blockingSynchronizers.offer(this);
+
         this.thread= new Thread(() -> {
             try {
                 task.execute();
                 waitForAllRequests();
-            } catch (RuntimeException e) {
-                System.out.println("caught error in blocked task");
+            } catch (Exception e) {
+                Log.err("caught error in blocked task");
                 callback.onError(e);
             }
             callback.onComplete();
         });
 
-     this.callback=callback;
-     blockingSynchronizers.offer(this);
-     return thread;
     }
     public void waitForAllRequests(){
         //as this is no operating systems course i handeled joining for threads quite liberally.
@@ -68,13 +66,13 @@ public class Synchronizer {
 
                 //if for timeout seconds no request is added or removed all requests are cancelled
                 if (keepAlive > Configuration.CLIENT_TIMEOUT_IN_SECONDS) {
-                    System.out.println("remaining requests cancelled due to timeout");
+                    Log.info("remaining requests cancelled due to timeout");
                     killAllFutures();
                     break;
                 }
-                System.out.println(getFutures().size() + " requests active " +message);
+                Log.info(getFutures().size() + " requests active " +message);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+               Log.stackTrace(e);
             }
         }
         //technically not neccessary but for peace of mind
@@ -108,4 +106,19 @@ public class Synchronizer {
     }
 
 
+    public void startTask() {
+        this.thread.start();
+    }
+
+    public void onError(Exception exception) {
+        this.callback.onError(exception);
+    }
+
+    public void join()  {
+        try {
+            this.thread.join();
+        } catch (InterruptedException ignored) {
+
+        }
+    }
 }

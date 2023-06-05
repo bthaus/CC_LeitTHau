@@ -25,7 +25,7 @@ public class TranslatorTest {
         childrenNodes = new ConcurrentLinkedDeque<>();
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
 
-        Translator.createAndStartTranslator(webNodeMock, "DE", new Callback() {
+        Translator.createAndStartNonBlocking(webNodeMock, "DE", new Callback() {
             @Override
             public void onComplete() {
                 System.out.println("all threads has been translated i think");  //TODO delete or change
