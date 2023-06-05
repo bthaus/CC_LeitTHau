@@ -1,3 +1,3 @@
 public interface Task {
-    void execute();
+    void execute() throws Exception;
 }

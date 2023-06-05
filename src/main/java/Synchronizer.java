@@ -1,8 +1,10 @@
+import lombok.Getter;
+
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentLinkedDeque;
-
+@Getter
 public class Synchronizer {
     private ConcurrentLinkedDeque<CompletableFuture<HttpResponse<String>>> futures = new ConcurrentLinkedDeque<>();
     private String message="";
@@ -37,7 +39,7 @@ public class Synchronizer {
             try {
                 task.execute();
                 waitForAllRequests();
-            } catch (RuntimeException e) {
+            } catch (Exception e) {
                 Log.err("caught error in blocked task");
                 callback.onError(e);
             }
@@ -104,7 +106,7 @@ public class Synchronizer {
     }
 
 
-    public void start() {
+    public void startTask() {
         this.thread.start();
     }
 

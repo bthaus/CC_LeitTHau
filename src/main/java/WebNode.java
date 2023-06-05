@@ -7,7 +7,6 @@ import java.net.http.HttpHeaders;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -39,7 +38,7 @@ public class WebNode {
 
     public void startNonBlocking(Callback callback) {
         synchronizer.createNonBlockingTask(this::crawl, callback);
-        synchronizer.start();
+        synchronizer.startTask();
     }
 
     public void crawl() {
@@ -102,7 +101,7 @@ public class WebNode {
                 if (linkSnipped.contains("https://") || linkSnipped.contains("http://")) {
                     WebNode child = new WebNode(linkSnipped, getDepth() - 1);
                     childrenNodes.offer(child);
-                    child.synchronizer = this.synchronizer;
+                    child.setSynchronizer(this.synchronizer);
                     child.crawl();
                 }
             }

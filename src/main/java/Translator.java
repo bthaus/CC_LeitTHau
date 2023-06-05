@@ -24,6 +24,7 @@ public class Translator {
         this.language = language;
         this.webNode = webNode;
 
+
         synchronizer.setIntervalMessage(webNode.getUrl() + "'s nodes are being translated");
 
     }
@@ -70,7 +71,7 @@ public class Translator {
      */
     public void startNonBlocking(Callback callback) {
         synchronizer.createNonBlockingTask(() -> deepTranslate(webNode), callback);
-        synchronizer.start();
+        synchronizer.startTask();
 
     }
 
@@ -90,7 +91,6 @@ public class Translator {
             synchronizer.removeFuture(future);
             String[] translation = res.body().split("translatedText\": \"");
             possibleErrorMessage = translation[0];
-
             handlePossibleFatalError(res);
 
             node.setHeader(translation[1].substring(0, translation[1].lastIndexOf("\"")));
