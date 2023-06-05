@@ -1,4 +1,5 @@
-tests.class
+TranslatorTest$1.class
+JsonHelperTest.class
 MarkdownFactoryTest.class
 SynchronizerTest.class
 TranslatorTest.class

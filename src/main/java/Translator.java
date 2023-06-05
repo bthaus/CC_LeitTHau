@@ -73,8 +73,8 @@ public class Translator {
      }*/
     public void startNonBlocking(Callback callback){
         this.callback=callback;
-       this.thread=synchronizer.createBlockedTask(task,callback);
-       this.thread.start();
+        this.thread=synchronizer.createBlockedTask(task,callback);
+        this.thread.start();
 
     }
 
@@ -92,7 +92,7 @@ public class Translator {
 
         HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers("content-type","application/json","X-RapidAPI-Key", Configuration.TRANSLATION_API_KEY,"X-RapidAPI-Host", Configuration.TRANSLATION_API_HOST).build();
         CompletableFuture<HttpResponse<String>> future = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());
-       synchronizer.offerFuture(future);
+        synchronizer.offerFuture(future);
 
         future.thenAcceptAsync((res) -> {
           synchronizer.removeFuture(future);

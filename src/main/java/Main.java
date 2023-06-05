@@ -16,8 +16,7 @@ public class Main {
        urls.push("https://www.wikipedia.at");
        urls.push("https://www.google.at");
 
-        for (String url:urls
-             ) {
+        for (String url:urls) {
             WebNode node=new WebNode(url,Configuration.getMaxCrawlDepth());
             node.startNonBlocking(new Callback() {
                 @Override
@@ -44,15 +43,13 @@ public class Main {
             nodes.push(node);
 
         }
+
         markdownFactory = new MarkdownFactory();
-
-
 
         System.out.println("waiting for everything to finish");
         Synchronizer.joinAll();
-        for (WebNode node:nodes
-             ) {
-        markdownFactory.createMarkdownFile(node);
+        for (WebNode node:nodes) {
+            markdownFactory.createMarkdownFile(node);
         }
 
     }

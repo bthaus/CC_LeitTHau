@@ -1,10 +1,11 @@
 GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
 Clean_Code_LeitTHau,default,JsonHelper.TranslationRequestBody,12,26,0,0,6,10,3,5,3,5
 Clean_Code_LeitTHau,default,JsonHelper,6,20,0,0,3,6,1,2,1,2
-Clean_Code_LeitTHau,default,Synchronizer,8,78,0,8,4,26,1,10,1,6
+Clean_Code_LeitTHau,default,Main.1.new Callback() {...},20,0,0,0,5,0,3,0,3,0
+Clean_Code_LeitTHau,default,Synchronizer,93,77,7,3,36,22,6,11,2,10
 Clean_Code_LeitTHau,default,Configuration,5,13,0,0,2,7,2,4,2,4
-Clean_Code_LeitTHau,default,Translator,35,138,7,5,10,29,7,7,1,7
-Clean_Code_LeitTHau,default,Syncer,4,22,0,0,2,10,1,6,1,6
-Clean_Code_LeitTHau,default,WebNode,62,209,3,19,18,53,11,20,8,12
-Clean_Code_LeitTHau,default,MarkdownFactory,53,83,4,4,12,16,4,5,1,4
-Clean_Code_LeitTHau,default,Main,43,0,0,0,12,0,2,0,2,0
+Clean_Code_LeitTHau,default,Translator,166,151,10,2,37,30,27,8,21,8
+Clean_Code_LeitTHau,default,WebNode,185,145,15,7,41,34,28,14,19,12
+Clean_Code_LeitTHau,default,MarkdownFactory,27,119,3,5,6,24,2,9,0,7
+Clean_Code_LeitTHau,default,Main.new Callback() {...},25,0,0,0,5,0,3,0,3,0
+Clean_Code_LeitTHau,default,Main,79,0,4,0,20,0,4,0,2,0
