@@ -36,16 +36,16 @@ public class Synchronizer {
         blockingSynchronizers.offer(this);
 
         this.thread= new Thread(() -> {
-            boolean thrown=false;
+
             try {
                 task.execute();
                 waitForAllRequests();
             } catch (Exception e) {
-                thrown=true;
+
                 Log.err("caught error in blocked task ");
                 callback.onError(e);
             }
-            callback.onComplete(thrown);
+            callback.onComplete("done");
         });
 
     }
