@@ -18,7 +18,6 @@ public class WebNodeTranslator extends Translator{
     public void deepTranslate(WebNode node) {
         if (checkForTranslationApiKey()) {
 
-            Log.debug("starting translation");
             translateNonBlocking(node.getHeader(), new Callback() {
             @Override
             public void onComplete(Object o) {
@@ -27,11 +26,9 @@ public class WebNodeTranslator extends Translator{
 
             @Override
             public void onError(Exception e) {
-                Log.debug("deeptranslate error");
                 getSynchronizer().onError(e);
             }
         });
-            Log.debug("starting child translation "+node.getChildrenNodes().size());
 
             for (WebNode child : node.getChildrenNodes()) {
                 Log.debug("translating "+child.getUrl());
