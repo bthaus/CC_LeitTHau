@@ -58,7 +58,4 @@ public class TranslatorTest {
         verify(webNodeMock, times(1)).getHeader();
     }
 
-
-
-
 }

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MarkdownFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Clean_Code_LeitTHau</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">MarkdownFactory.java</span></div><h1>MarkdownFactory.java</h1><pre class="source lang-java linenums">import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+<span class="fc" id="L7">public class MarkdownFactory {</span>
+    public Path path;
+
+    private void createMarkdownFileInternal(WebNode root, String headerMessage, String title){
+<span class="fc" id="L11">        path = Paths.get(&quot;src/main/resources/&quot; + root.getName() + title + &quot;.md&quot;);</span>
+        try {
+<span class="fc" id="L13">            Files.writeString(path, &quot; # &quot; + headerMessage +&quot; &lt;br&gt;\n &quot; + getMarkdownString(root), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L14">        }catch (IOException ex) {</span>
+<span class="nc" id="L15">           Log.err(&quot;Invalid Path&quot;);</span>
+<span class="fc" id="L16">        }</span>
+<span class="fc" id="L17">    }</span>
+    //overwritten method for createmarkdown file to accomodate passing an error message or not, while still calling the same internal function
+    public void createMarkdownFile(WebNode root, String errorMessage){
+<span class="fc" id="L20">        createMarkdownFileInternal(root,&quot;An error happened when crawling this page.\n &lt;br&gt; &quot; +</span>
+                &quot;Errormessage: &quot; + errorMessage + &quot; &lt;br&gt; &quot;,&quot;WithError&quot;);
+<span class="fc" id="L22">    }</span>
+    public void createMarkdownFile(WebNode root){
+<span class="fc" id="L24">        createMarkdownFileInternal(root,&quot;&quot;,&quot;&quot;);</span>
+<span class="fc" id="L25">    }</span>
+
+    public StringBuilder getMarkdownString(WebNode node){
+<span class="fc" id="L28">        StringBuilder markdownString = new StringBuilder();</span>
+<span class="fc" id="L29">        markdownString.append(getFormat(node));</span>
+
+<span class="pc bpc" id="L31" title="1 of 2 branches missed.">        for (WebNode child : node.getChildrenNodes()){</span>
+<span class="nc" id="L32">            markdownString.append(getMarkdownString(child));</span>
+
+            //for debugging and checks
+<span class="nc bnc" id="L35" title="All 2 branches missed.">            if (child.isSuccessful()) Configuration.successes++;</span>
+<span class="nc" id="L36">            else Configuration.failures++;</span>
+<span class="nc" id="L37">        }</span>
+<span class="fc" id="L38">        return markdownString;</span>
+    }
+
+    public String getFormat(WebNode node){
+<span class="fc" id="L42">        String formattedLine = &quot;&quot;;</span>
+<span class="fc" id="L43">        formattedLine = concatNElements(formattedLine,&quot;#&quot;, Configuration.getMaxCrawlDepth()-node.getDepth()-1).concat(&quot; &quot;);</span>
+<span class="fc" id="L44">        formattedLine = concatNElements(formattedLine,&quot;-&quot;, Configuration.getMaxCrawlDepth()-node.getDepth());</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (node.isSuccessful()){</span>
+<span class="fc" id="L47">            formattedLine = formattedLine.concat(&quot;&gt; **&quot; + node.getUrl() + &quot;** &lt;br&gt;\n&quot;);</span>
+        } else{
+<span class="fc" id="L49">            formattedLine = formattedLine.concat(&quot;&gt; *&quot; + node.getUrl() + &quot;* &lt;br&gt;\n&quot;);</span>
+        }
+<span class="fc" id="L51">        formattedLine = formattedLine.concat(node.getHeader() + &quot;\n&quot;);</span>
+
+<span class="fc" id="L53">        return formattedLine;</span>
+    }
+
+    private String concatNElements(String word, String value, int repetitions){
+<span class="fc bfc" id="L57" title="All 2 branches covered.">        for (int i = 0; i &lt;= repetitions; i++) {</span>
+<span class="fc" id="L58">            word = word.concat(value);</span>
+        }
+<span class="fc" id="L60">        return word;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
