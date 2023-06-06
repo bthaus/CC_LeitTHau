@@ -31,7 +31,7 @@ public class WebNodeTranslator extends Translator{
                 getSynchronizer().onError(e);
             }
         });
-            Log.debug("starting child translation "+node.getChildrenNodes().size());
+            Log.debug("starting child translation " + node.getChildrenNodes().size());
 
             for (WebNode child : node.getChildrenNodes()) {
                 Log.debug("translating "+child.getUrl());

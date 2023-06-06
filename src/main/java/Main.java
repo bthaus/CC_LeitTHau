@@ -5,21 +5,21 @@ public class Main {
 
 
     public static void main(String[] args) {
-        Configuration.setMaxCrawlDepth(Integer.parseInt(args[1]));
+        Configuration.setMaxCrawlDepth(Integer.parseInt(args[0]));
 
         LinkedList<String> urls = new LinkedList<>();
         LinkedList<WebNode> nodes = new LinkedList<>();
 
-        urls.push("https://www.facebook.at");
-        urls.push("https://www.wikipedia.at");
-        urls.push("https://www.google.at");
+        for(int i = 2; i< args.length; i++){
+            urls.push(args[i]);
+        }
 
         for (String url : urls) {
             WebNode node = new WebNode(url, Configuration.getMaxCrawlDepth());
             node.startNonBlocking(new Callback() {
                 @Override
                 public void onComplete(Object o) {
-                    WebNodeTranslator translator = new WebNodeTranslator(args[2], node);
+                    WebNodeTranslator translator = new WebNodeTranslator(args[1], node);
                     translator.startNonBlocking(new Callback() {
 
                         @Override
