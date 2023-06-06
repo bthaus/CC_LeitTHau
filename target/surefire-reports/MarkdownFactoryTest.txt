@@ -1,4 +1,12 @@
 -------------------------------------------------------------------------------
 Test set: MarkdownFactoryTest
 -------------------------------------------------------------------------------
-Tests run: 9, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.267 s - in MarkdownFactoryTest
+Tests run: 9, Failures: 2, Errors: 0, Skipped: 0, Time elapsed: 1.19 s <<< FAILURE! - in MarkdownFactoryTest
+checkCreatedMarkdownFile(MarkdownFactoryTest)  Time elapsed: 0.038 s  <<< FAILURE!
+org.junit.ComparisonFailure: expected:<[ #  <br>]> but was:<[]>
+	at MarkdownFactoryTest.checkCreatedMarkdownFile(MarkdownFactoryTest.java:97)
+
+createMarkdownFileErrorMessage(MarkdownFactoryTest)  Time elapsed: 0.006 s  <<< FAILURE!
+org.junit.ComparisonFailure: expected:<[ # An error happened when crawling this page.]> but was:<[]>
+	at MarkdownFactoryTest.createMarkdownFileErrorMessage(MarkdownFactoryTest.java:122)
+

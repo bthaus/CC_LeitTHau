@@ -147,7 +147,4 @@ public class SynchronizerTest {
         synchronizer.join();
     }
 
-
-
-
 }

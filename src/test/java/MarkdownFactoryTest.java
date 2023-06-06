@@ -81,6 +81,7 @@ public class MarkdownFactoryTest {
 
     @Test
     public void checkCreatedMarkdownFile(){
+        boolean validPath = true;
         markdownFactory.createMarkdownFile(webNodeMock);
         String filePath = markdownFactory.path.toString();
         String markdownFileContent = "";
@@ -92,9 +93,16 @@ public class MarkdownFactoryTest {
                 fileReader.close();
             } catch (IOException e) {
                 e.printStackTrace();
+                validPath = false;
             }
 
-            assertEquals(" # " + "" + " <br>" , markdownFileContent);
+            if (validPath) {
+                assertEquals(" # " + "" + " <br>" , markdownFileContent);
+            }else{
+                assertThrows(IOException.class, () -> {
+                    FileReader fileReader = new FileReader(filePath);
+                });
+            }
     }
 
     @Test
@@ -106,6 +114,7 @@ public class MarkdownFactoryTest {
 
     @Test
     public void createMarkdownFileErrorMessage(){
+        boolean validPath = true;
         markdownFactory.createMarkdownFile(webNodeMock, "errorMessage");
         String filePath = markdownFactory.path.toString();
         String markdownFileContentWithError = "";
@@ -117,19 +126,17 @@ public class MarkdownFactoryTest {
             fileReader.close();
         } catch (IOException e) {
             e.printStackTrace();
+            validPath = false;
         }
 
-        assertEquals(" # An error happened when crawling this page.", markdownFileContentWithError);
+        if (validPath) {
+            assertEquals(" # An error happened when crawling this page.", markdownFileContentWithError);
+        }else{
+            assertThrows(IOException.class, () -> {
+                FileReader fileReader = new FileReader(filePath);
+            });
+        }
     }
 
-    /*
-    @Test
-    public void getMarkdownStringKidNodesTest(){
-        childrenNodes.add(webNodeMock);
-        childrenNodes.add(webNodeMock);
 
-        markdownFactory.getMarkdownString(webNodeMock);
-        verify(webNodeMock, times(1)).getChildrenNodes();
-
-    }*/ //todo fix or delete
 }

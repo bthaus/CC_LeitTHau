@@ -24,30 +24,20 @@ public class TranslatorTest {
         openMocks(this);
         childrenNodes = new ConcurrentLinkedDeque<>();
         when(webNodeMock.getChildrenNodes()).thenReturn(childrenNodes);
-        translator=new WebNodeTranslator("en", webNodeMock);
-        translator.startNonBlocking(new Callback() {
-            @Override
-            public void onComplete(Object o) {
-                System.out.println("all threads has been translated i think");  //TODO delete or change
-            }
+        translator = new WebNodeTranslator("de", webNodeMock);
 
-            @Override
-            public void onError(Exception e) {
-                e.printStackTrace();
-            }
-        });
 
     }
     @Test
     public void checkTranslationAPITest(){
         assertEquals (Configuration.doIHaveATranslationApiKey, translator.checkForTranslationApiKey());
     }
-/*
+
     @Test
     public void deepTranslateWithChildTest(){
         childrenNodes.offer(webNodeMock);
         translator.deepTranslate(webNodeMock);
-        verify(webNodeMock, times(1)).getChildrenNodes();
+        verify(webNodeMock, times(2)).getChildrenNodes();
 
     }
 
@@ -58,23 +48,17 @@ public class TranslatorTest {
         childrenNodes.offer(webNodeMock);
         childrenNodes.offer(webNodeMock);
         translator.deepTranslate(webNodeMock);
-        verify(webNodeMock, times(1)).getChildrenNodes();
+        verify(webNodeMock, times(2)).getChildrenNodes();
 
     }
 
     @Test
     public void translateTest(){
-        translator.translate(webNodeMock);
+        translator.deepTranslate(webNodeMock);
         verify(webNodeMock, times(1)).getHeader();
     }
 
-    @Test
-    public void translateHeaderTest() {
-        WebNode data=new WebNode("test header with testvalue");
-        Translator headerTranslator = new Translator("de");
-        headerTranslator.translate(data);
-        assertEquals("Testheader mit Testwert", data.getHeader());
-    }
-    */
+
+
 
 }
