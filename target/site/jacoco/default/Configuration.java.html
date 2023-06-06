@@ -6,8 +6,8 @@
     public static final String TRANSLATION_API_KEY = &quot;8be2472a36msh8f684a5c19a2e7fp1efedbjsn205de06bd3c9&quot;;
     public static final String TRANSLATION_API_HOST = &quot;google-translator9.p.rapidapi.com&quot;;
     public static final boolean doIHaveATranslationApiKey = true;
+<span class="fc" id="L9">    public static boolean doIStopOnFatalTranslationError=true;</span>
 
-    private static String rootUrl;
     private static int maxCrawlDepth;
 
     public static final int CLIENT_TIMEOUT_IN_SECONDS = 3;
@@ -31,12 +31,6 @@
 <span class="fc" id="L31">        Configuration.maxCrawlDepth = maxCrawlDepth;</span>
 <span class="fc" id="L32">    }</span>
 
-    public static String getRootUrl() {
-<span class="nc" id="L35">        return rootUrl;</span>
-    }
 
-    public static void setRootUrl(String rootUrl) {
-<span class="fc" id="L39">        Configuration.rootUrl = rootUrl;</span>
-<span class="fc" id="L40">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>

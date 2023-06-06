@@ -83,13 +83,6 @@ public class WebNodeTest {
     }
 
     @Test
-    public void createRequestTest(){            //TODO not an actual test... can i even test it?
-        webNode = new WebNode("https://www.testURL.at", 1);
-        CompletableFuture<HttpResponse<String>> actual = webNode.createRequest();
-        System.out.println(actual);
-    }
-
-    @Test
     public void createRequestExceptionTest(){
         webNode = new WebNode("", 1);
 
@@ -108,14 +101,5 @@ public class WebNodeTest {
         assertTrue(after > before);
     }
 
-   /*@Test
-    public void handleResponseTest(){       //todo isnt working yet
-        webNode = new WebNode("https://www.bodofoto.at", 2);
-        webNode.prepareForCrawl();
-        webNode.setSynchronizer(synchronizerMock);
-        webNode.handleResponse();
-
-        verify(synchronizerMock, times((1))).removeFuture(webNode.createRequest());
-    }*/
 
 }

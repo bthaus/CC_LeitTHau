@@ -30,7 +30,7 @@ public class Translator {
 
 
 
-//not part of assignment, but fits nonblockingstructure. if one wants to translate an array of strings that could be done the same way
+    //not part of assignment, but fits nonblockingstructure. if one wants to translate an array of strings that could be done the same way
     // as in webnodeTranslator. as its not part of the assignment this is just left as a stub
     public void startNonBlocking(Callback callback, String text) {
         synchronizer.createNonBlockingTask(() -> translateNonBlocking(text, callback), callback);

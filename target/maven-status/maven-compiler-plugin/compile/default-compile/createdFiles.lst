@@ -1,7 +1,9 @@
 Configuration.class
 Task.class
 WebNode.class
+WebNodeTranslator$1.class
 JsonHelper$TranslationRequestBody.class
+WebNodeTranslator.class
 Main$1.class
 Translator.class
 JsonHelper.class
@@ -9,4 +11,5 @@ Main.class
 Callback.class
 MarkdownFactory.class
 Synchronizer.class
+Log.class
 Main$1$1.class

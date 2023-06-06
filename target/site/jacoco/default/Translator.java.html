@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Translator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Clean_Code_LeitTHau</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Translator.java</span></div><h1>Translator.java</h1><pre class="source lang-java linenums">import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="de"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Translator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Clean_Code_LeitTHau</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Translator.java</span></div><h1>Translator.java</h1><pre class="source lang-java linenums">import lombok.Getter;
 import lombok.Setter;
 
 import java.net.URI;
@@ -8,124 +6,90 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
-import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
 
 @Getter
-<span class="nc" id="L15">@Setter</span>
+<span class="nc" id="L12">@Setter</span>
 public class Translator {
-<span class="nc" id="L17">    private final String language;</span>
-<span class="fc" id="L18">    private static LinkedList&lt;Translator&gt; translators=new LinkedList&lt;&gt;();</span>
-<span class="pc" id="L19">    private Synchronizer synchronizer=new Synchronizer();</span>
-<span class="nc" id="L20">    private WebNode webNode;</span>
-<span class="nc" id="L21">    private Task task;</span>
-<span class="nc" id="L22">    private Thread thread;</span>
-<span class="nc" id="L23">    private Callback callback;</span>
+<span class="nc" id="L14">    private final String language;</span>
+<span class="fc" id="L15">   private Synchronizer synchronizer = new Synchronizer();</span>
 
-<span class="pc" id="L25">    private String possibleErrorMessage = &quot;&quot;;</span>
-<span class="nc" id="L26">    private boolean running;</span>
+<span class="pc" id="L17">    private String possibleErrorMessage = &quot;&quot;;</span>
+<span class="fc" id="L18">    private boolean running;</span>
 
-<span class="fc" id="L28">    private Translator(WebNode webNode,String language) {</span>
-<span class="fc" id="L29">        this.language = language;</span>
-<span class="fc" id="L30">        this.webNode=webNode;</span>
-<span class="fc" id="L31">        this.task= () -&gt; deepTranslate(webNode);</span>
-<span class="fc" id="L32">        synchronizer.setIntervalMessage(webNode.getUrl()+&quot;'s nodes are being translated&quot;);</span>
+<span class="fc" id="L20">    public Translator( String language) {</span>
+<span class="fc" id="L21">        this.language = language;</span>
+<span class="fc" id="L22">    }</span>
 
-<span class="fc" id="L34">    }</span>
 
-    static Translator createAndStartTranslator(WebNode webnode, String language, Callback callback){
-<span class="fc" id="L37">        Translator translator=new Translator(webnode,language);</span>
-<span class="fc" id="L38">        translator.startNonBlocking(callback);</span>
-<span class="fc" id="L39">        translators.push(translator);</span>
-<span class="fc" id="L40">        return translator;</span>
-    }
-    static void joinAll(){
-<span class="nc bnc" id="L43" title="All 2 branches missed.">        for (Translator tra:translators) {</span>
-<span class="nc" id="L44">            tra.join();</span>
-<span class="nc" id="L45">        }</span>
-<span class="nc" id="L46">    }</span>
 
-    public boolean checkForTranslationApiKey(){
-<span class="fc" id="L49">        return Configuration.doIHaveATranslationApiKey;</span>
+    public boolean checkForTranslationApiKey() {
+<span class="fc" id="L27">        return Configuration.doIHaveATranslationApiKey;</span>
     }
 
 
-    public void deepTranslate(WebNode node){
-<span class="fc" id="L54">        translate(node);</span>
-<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (checkForTranslationApiKey()) {</span>
-<span class="pc bpc" id="L56" title="1 of 2 branches missed.">            for (WebNode child : node.getChildrenNodes()) {</span>
-<span class="nc bnc" id="L57" title="All 2 branches missed.">                if (!running) return;</span>
 
-<span class="nc" id="L59">                deepTranslate(child);</span>
-<span class="nc" id="L60">                System.out.println(synchronizer.getFutures().size());</span>
-<span class="nc" id="L61">            }</span>
-        }
-<span class="fc" id="L63">    }</span>
 
-    /** formatted according to example response on deepl.com/docs-api:
-     {
-     &quot;translations&quot;: [
-     {
-     &quot;detected_source_language&quot;: &quot;EN&quot;,
-     &quot;text&quot;: &quot;Hallo, Welt!&quot;
-     }
-     ]
-     }*/
-    public void startNonBlocking(Callback callback){
-<span class="fc" id="L75">        this.callback=callback;</span>
-<span class="fc" id="L76">        this.thread=synchronizer.createBlockedTask(task,callback);</span>
-<span class="fc" id="L77">        this.thread.start();</span>
+    //not part of assignment, but fits nonblockingstructure. if one wants to translate an array of strings that could be done the same way
+    // as in webnodeTranslator. as its not part of the assignment this is just left as a stub
+    public void startNonBlocking(Callback callback, String text) {
+<span class="nc" id="L36">        synchronizer.createNonBlockingTask(() -&gt; translateNonBlocking(text, callback), callback);</span>
+<span class="nc" id="L37">        synchronizer.startTask();</span>
+<span class="nc" id="L38">    }</span>
 
-<span class="fc" id="L79">    }</span>
 
-    public void join(){
-        try {
-<span class="nc" id="L83">            this.thread.join();</span>
-<span class="nc" id="L84">        } catch (InterruptedException ignored) {</span>
+    /**
+     * formatted according to example response on deepl.com/docs-api:
+     * {
+     * &quot;translations&quot;: [
+     * {
+     * &quot;detected_source_language&quot;: &quot;EN&quot;,
+     * &quot;text&quot;: &quot;Hallo, Welt!&quot;
+     * }
+     * ]
+     * }
+     */
+    public void translateNonBlocking(String text, Callback callback ) {
+<span class="fc" id="L53">        JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(text, &quot;en&quot;, language);</span>
+<span class="fc" id="L54">        String bodyString = JsonHelper.getJsonString(body);</span>
 
-<span class="nc" id="L86">        }</span>
-<span class="nc" id="L87">    }</span>
+<span class="fc" id="L56">        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers(&quot;content-type&quot;, &quot;application/json&quot;, &quot;X-RapidAPI-Key&quot;, Configuration.TRANSLATION_API_KEY, &quot;X-RapidAPI-Host&quot;, Configuration.TRANSLATION_API_HOST).build();</span>
+<span class="fc" id="L57">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; future = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());</span>
+<span class="fc" id="L58">        synchronizer.offerFuture(future);</span>
 
-    public void translate(WebNode node) {
-<span class="fc" id="L90">        JsonHelper.TranslationRequestBody body = JsonHelper.getTranslationRequestBody(node.getHeader(),&quot;en&quot;, language);</span>
-<span class="fc" id="L91">        String bodyString = JsonHelper.getJsonString(body);</span>
+<span class="fc" id="L60">        future.thenAcceptAsync((res) -&gt; {</span>
+<span class="nc" id="L61">            synchronizer.removeFuture(future);</span>
+<span class="nc" id="L62">            String[] translation = res.body().split(&quot;translatedText\&quot;: \&quot;&quot;);</span>
+<span class="nc" id="L63">            possibleErrorMessage = translation[0];</span>
+<span class="nc" id="L64">            handlePossibleFatalError(res);</span>
+<span class="nc" id="L65">            callback.onComplete(translation[1].substring(0, translation[1].lastIndexOf(&quot;\&quot;&quot;)));</span>
 
-<span class="fc" id="L93">        HttpRequest httpRequest = HttpRequest.newBuilder(URI.create(Configuration.TRANSLATION_URI)).POST(HttpRequest.BodyPublishers.ofString(bodyString)).headers(&quot;content-type&quot;,&quot;application/json&quot;,&quot;X-RapidAPI-Key&quot;, Configuration.TRANSLATION_API_KEY,&quot;X-RapidAPI-Host&quot;, Configuration.TRANSLATION_API_HOST).build();</span>
-<span class="fc" id="L94">        CompletableFuture&lt;HttpResponse&lt;String&gt;&gt; future = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(Configuration.CLIENT_TIMEOUT_IN_SECONDS)).build().sendAsync(httpRequest, HttpResponse.BodyHandlers.ofString());</span>
-<span class="fc" id="L95">        synchronizer.offerFuture(future);</span>
+<span class="pc" id="L67">        }).exceptionally((exception) -&gt; {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">            if (!synchronizer.getFutures().isEmpty()) {</span>
+<span class="nc" id="L69">                synchronizer.removeFuture(future);</span>
+<span class="nc" id="L70">                callback.onError(new Exception(exception));</span>
+<span class="nc" id="L71">                stop();</span>
+<span class="nc" id="L72">                Log.err(possibleErrorMessage);</span>
+<span class="nc" id="L73">                synchronizer.killAllFutures();</span>
 
-<span class="fc" id="L97">        future.thenAcceptAsync((res) -&gt; {</span>
-<span class="nc" id="L98">          synchronizer.removeFuture(future);</span>
-<span class="nc" id="L99">           String[] translation = res.body().split(&quot;translatedText\&quot;: \&quot;&quot;);</span>
-<span class="nc" id="L100">           possibleErrorMessage = translation[0];</span>
-
-<span class="nc" id="L102">            handlePossibleFatalError(res);</span>
-
-<span class="nc" id="L104">            node.setHeader(translation[1].substring(0, translation[1].lastIndexOf(&quot;\&quot;&quot;)));</span>
-
-<span class="pc" id="L106">        }).exceptionally((exception) -&gt; {</span>
-<span class="nc bnc" id="L107" title="All 2 branches missed.">            if (!synchronizer.getFutures().isEmpty()) {</span>
-<span class="nc" id="L108">                System.out.println(possibleErrorMessage);</span>
-<span class="nc" id="L109">                stop();</span>
-<span class="nc" id="L110">                synchronizer.killAllFutures();</span>
             }
-<span class="nc" id="L112">            return null;</span>
+<span class="nc" id="L76">            return null;</span>
         });
 
 
-<span class="fc" id="L116">    }</span>
+<span class="fc" id="L80">    }</span>
 
-    private void stop(){
-<span class="nc" id="L119">        this.running=false;</span>
-<span class="nc" id="L120">    }</span>
+    private void stop() {
+<span class="nc" id="L83">        this.running = false;</span>
+<span class="nc" id="L84">    }</span>
 
-    private void handlePossibleFatalError(HttpResponse&lt;String&gt; res)  {
-<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (res.statusCode() &gt; Configuration.LOWEST_FATAL_STATUS_CODE) {</span>
-<span class="nc" id="L124">            System.out.println(possibleErrorMessage);</span>
-<span class="nc" id="L125">            stop();</span>
-<span class="nc" id="L126">            synchronizer.killAllFutures();</span>
-<span class="nc" id="L127">            callback.onError(new Exception(&quot;Translating failed fatally with error code: &quot; + res.statusCode() + &quot; on Url: &quot; + res.uri()));</span>
+    private void handlePossibleFatalError(HttpResponse&lt;String&gt; res) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (res.statusCode() &gt; Configuration.LOWEST_FATAL_STATUS_CODE) {</span>
+<span class="nc" id="L88">            stop();</span>
+<span class="nc" id="L89">            Log.err(possibleErrorMessage);</span>
+<span class="nc" id="L90">            synchronizer.killAllFutures();</span>
+<span class="nc" id="L91">            synchronizer.onError(new Exception(&quot;Translating failed fatally with error code: &quot; + res.statusCode() + &quot; on Url: &quot; + res.uri()));</span>
         }
-<span class="nc" id="L129">    }</span>
+<span class="nc" id="L93">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.6.202009150832</span></div></body></html>
